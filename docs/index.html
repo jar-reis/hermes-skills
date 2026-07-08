@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hermes Skills — Agent-Authored Skill Registry</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --canvas: #F1EBDF; --surface: #F5F0E6; --surface-raised: #E8E2D6;
+  --text-primary: #1D291F; --text-body: #2A3B2C; --text-muted: #6B7561; --text-subtle: #8A9580;
+  --border-whisper: #DBD6C3; --border-strong: #CBC6B3;
+  --terracotta: #A56D4A; --terracotta-ink: #7A4A30;
+  --sage-deep: #506050; --sage-mid: #607060; --sage-light: #A0B098;
+  --sage-ramp-0: #E8E2D6; --sage-ramp-1: #C8D0BC; --sage-ramp-2: #A0B098; --sage-ramp-3: #708068; --sage-ramp-4: #506050;
+  --leaf-green: #507634; --grain-gold: #F1C85E; --grain-gold-ink: #8A6A10;
+  --font-serif: Georgia, 'Times New Roman', serif;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+  --text-h1: 36px; --text-h2: 25px; --text-h3: 20px; --text-base: 16px; --text-small: 14px; --text-caption: 12px;
+  --radius-md: 8px; --radius-lg: 12px;
+  --shadow-whisper: rgba(0,0,0,0.04) 0px 2px 12px;
+  --shadow-elevated: rgba(0,0,0,0.08) 0px 4px 24px;
+  --lane-sense: #506050;
+  --lane-shape: #B58932;
+  --lane-spec: #A56D4A;
+  --lane-execute: #7D6B8A;
+  --lane-transfer: #5A7A8A;
+}
+[data-theme="dark"] {
+  --canvas: #1A1815; --surface: #252321; --surface-raised: #30302e;
+  --text-primary: #E8E2D6; --text-body: #DBD6C3; --text-muted: #B0AEA5; --text-subtle: #8A9580;
+  --border-whisper: #30302e; --border-strong: #3D3A36;
+  --shadow-whisper: rgba(0,0,0,0.15) 0px 2px 12px;
+  --shadow-elevated: rgba(0,0,0,0.25) 0px 4px 24px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--canvas);
+  color: var(--text-body);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: 1.6;
+  min-height: 100vh;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* ─── Header ─── */
+.app-header {
+  padding: 48px 32px 24px;
+  max-width: 1600px;
+  margin: 0 auto;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+}
+.header-title h1 {
+  font-family: var(--font-serif);
+  font-size: var(--text-h1);
+  color: var(--text-primary);
+  font-weight: 400;
+  letter-spacing: -0.5px;
+  line-height: 1.1;
+}
+.header-title .subtitle {
+  font-size: var(--text-small);
+  color: var(--text-muted);
+  margin-top: 6px;
+  font-weight: 400;
+}
+
+/* ─── Theme Toggle ─── */
+.theme-toggle {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  transition: color 0.2s ease;
+}
+.theme-toggle:hover { color: var(--terracotta); }
+.theme-toggle svg {
+  width: 28px;
+  height: 28px;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.theme-toggle.spinning svg {
+  transform: rotate(60deg);
+}
+
+/* ─── Live indicator ─── */
+.live-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border-whisper);
+  border-radius: 20px;
+  font-size: var(--text-caption);
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+  margin-top: 14px;
+}
+.live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--leaf-green);
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.85); }
+}
+.live-indicator.fallback .live-dot {
+  background: var(--grain-gold);
+  animation: none;
+}
+
+/* ─── Filter Toolbar ─── */
+.filter-toolbar {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 0 32px 20px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+.search-input {
+  flex: 1;
+  min-width: 200px;
+  padding: 10px 16px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.search-input:focus {
+  outline: none;
+  border-color: var(--terracotta);
+  box-shadow: 0 0 0 3px rgba(165, 109, 74, 0.12);
+}
+.search-input::placeholder { color: var(--text-subtle); }
+
+.lane-filter {
+  padding: 10px 16px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236B7561' d='M6 8L2 4h8z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+}
+.lane-filter:focus { outline: none; border-color: var(--terracotta); }
+
+.category-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.cat-pill {
+  padding: 4px 12px;
+  border: 1px solid var(--border-whisper);
+  border-radius: 16px;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: var(--text-caption);
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+.cat-pill:hover {
+  border-color: var(--border-strong);
+  color: var(--text-body);
+}
+.cat-pill.active {
+  background: var(--sage-deep);
+  border-color: var(--sage-deep);
+  color: #F1EBDF;
+}
+
+/* ─── Main layout: Railway + Detail Rail ─── */
+.main-layout {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 0 32px 48px;
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 24px;
+  align-items: start;
+}
+
+/* ─── Railway Grid ─── */
+.railway {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+}
+
+.lane {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 100px;
+}
+
+.lane-header {
+  font-family: var(--font-serif);
+  font-size: var(--text-h3);
+  color: var(--text-primary);
+  font-weight: 400;
+  padding: 8px 12px 8px 14px;
+  border-left: 3px solid var(--lane-accent);
+  background: var(--surface);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  box-shadow: var(--shadow-whisper);
+}
+.lane-header .lane-count {
+  font-family: var(--font-mono);
+  font-size: var(--text-caption);
+  color: var(--text-subtle);
+  font-weight: 400;
+}
+.lane[data-lane="Sense"]    { --lane-accent: var(--lane-sense); }
+.lane[data-lane="Shape"]    { --lane-accent: var(--lane-shape); }
+.lane[data-lane="Spec"]     { --lane-accent: var(--lane-spec); }
+.lane[data-lane="Execute"]  { --lane-accent: var(--lane-execute); }
+.lane[data-lane="Transfer"] { --lane-accent: var(--lane-transfer); }
+
+/* ─── Station Cards ─── */
+.station-card {
+  background: var(--surface);
+  border: 1px solid var(--border-whisper);
+  border-left: 3px solid var(--lane-accent);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  padding: 14px 14px 12px;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+  box-shadow: var(--shadow-whisper);
+  outline: none;
+}
+.station-card:hover,
+.station-card:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-elevated);
+  border-color: var(--border-strong);
+}
+.station-card:focus-visible {
+  box-shadow: var(--shadow-elevated), 0 0 0 2px var(--terracotta);
+}
+.station-card.selected {
+  border-color: var(--terracotta);
+  box-shadow: var(--shadow-elevated);
+  background: var(--surface-raised);
+}
+
+.card-name {
+  font-family: var(--font-mono);
+  font-size: var(--text-small);
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+  word-break: break-word;
+}
+.card-desc {
+  font-size: var(--text-caption);
+  color: var(--text-muted);
+  line-height: 1.45;
+  margin-bottom: 8px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.card-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+}
+.card-cat-chip {
+  font-size: 10px;
+  font-family: var(--font-sans);
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: var(--sage-ramp-0);
+  color: var(--sage-deep);
+  font-weight: 500;
+  letter-spacing: 0.2px;
+  text-transform: lowercase;
+}
+.tag-chip {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: transparent;
+  border: 1px solid var(--border-whisper);
+  color: var(--text-subtle);
+}
+
+/* ─── Detail Rail ─── */
+.detail-rail {
+  position: sticky;
+  top: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border-whisper);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  box-shadow: var(--shadow-whisper);
+  min-height: 200px;
+}
+.detail-rail .detail-empty {
+  color: var(--text-subtle);
+  font-size: var(--text-small);
+  text-align: center;
+  padding: 40px 0;
+  line-height: 1.7;
+}
+.detail-rail .detail-empty .empty-icon {
+  font-size: 32px;
+  display: block;
+  margin-bottom: 12px;
+  opacity: 0.4;
+}
+
+.detail-name {
+  font-family: var(--font-mono);
+  font-size: var(--text-h3);
+  color: var(--text-primary);
+  font-weight: 500;
+  margin-bottom: 4px;
+  word-break: break-word;
+}
+.detail-lane-badge {
+  display: inline-block;
+  font-size: var(--text-caption);
+  font-family: var(--font-sans);
+  padding: 2px 10px;
+  border-radius: 12px;
+  margin-bottom: 14px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+.detail-desc {
+  font-size: var(--text-small);
+  color: var(--text-body);
+  line-height: 1.6;
+  margin-bottom: 18px;
+}
+
+.detail-section {
+  margin-bottom: 14px;
+}
+.detail-label {
+  font-size: var(--text-caption);
+  font-family: var(--font-sans);
+  color: var(--text-subtle);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.detail-value {
+  font-size: var(--text-small);
+  color: var(--text-body);
+  font-family: var(--font-mono);
+}
+.detail-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.detail-runtimes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.runtime-chip {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: var(--sage-ramp-0);
+  color: var(--sage-deep);
+}
+
+/* ─── Footer ─── */
+.app-footer {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 24px 32px 48px;
+  text-align: center;
+}
+.app-footer p {
+  font-family: var(--font-serif);
+  font-size: var(--text-small);
+  color: var(--text-subtle);
+  font-style: italic;
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 1200px) {
+  .main-layout {
+    grid-template-columns: 1fr 300px;
+  }
+}
+@media (max-width: 900px) {
+  .main-layout {
+    grid-template-columns: 1fr;
+  }
+  .detail-rail {
+    position: relative;
+    top: 0;
+    order: -1;
+    min-height: auto;
+  }
+  .railway {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 600px) {
+  .app-header { padding: 32px 16px 16px; flex-direction: column; gap: 12px; }
+  .filter-toolbar { padding: 0 16px 16px; }
+  .main-layout { padding: 0 16px 32px; }
+  .railway {
+    grid-template-columns: 1fr;
+  }
+  .app-footer { padding: 16px 16px 32px; }
+  .header-title h1 { font-size: 28px; }
+}
+
+/* ─── Scrollbar ─── */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--canvas); }
+::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-subtle); }
+
+/* ─── No results ─── */
+.no-results {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 48px 16px;
+  color: var(--text-subtle);
+  font-size: var(--text-small);
+}
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="header-title">
+    <h1>Hermes Skills</h1>
+    <div class="subtitle">Agent-authored skill registry</div>
+    <div class="live-indicator" id="liveIndicator">
+      <span class="live-dot"></span>
+      <span id="liveText">Loading…</span>
+    </div>
+  </div>
+  <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme" title="Toggle theme">
+    <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" id="themeIcon">
+      <!-- Semicircle tide dial -->
+      <path d="M4 18 A10 10 0 0 1 24 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>
+      <path d="M4 18 A10 10 0 0 1 14 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.4"/>
+      <line x1="14" y1="18" x2="14" y2="10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="14" cy="18" r="2" fill="currentColor"/>
+    </svg>
+  </button>
+</header>
+
+<div class="filter-toolbar">
+  <input type="text" class="search-input" id="searchInput" placeholder="Search skills by name, description, or tag…" aria-label="Search skills">
+  <select class="lane-filter" id="laneFilter" aria-label="Filter by lane">
+    <option value="All">All Lanes</option>
+    <option value="Sense">Sense</option>
+    <option value="Shape">Shape</option>
+    <option value="Spec">Spec</option>
+    <option value="Execute">Execute</option>
+    <option value="Transfer">Transfer</option>
+  </select>
+  <div class="category-pills" id="categoryPills"></div>
+</div>
+
+<div class="main-layout">
+  <div class="railway" id="railway"></div>
+  <aside class="detail-rail" id="detailRail">
+    <div class="detail-empty">
+      <span class="empty-icon">◷</span>
+      Select a station to inspect<br>its full specification.
+    </div>
+  </aside>
+</div>
+
+<footer class="app-footer">
+  <p>Every skill has a home lane. Every lane has a station.</p>
+</footer>
+
+<script type="application/json" id="fallbackData">
+[{"name":"api-retry-tuning","lane":"Shape","category":"autonomous-ai-agents","description":"Tune agent.api_max_retries for fast fallback or resilience.","runtimes":["hermes"],"tags":["Api","Retry","Tuning"],"version":"0.1.0"},{"name":"atlas-chunking","lane":"Shape","category":"autonomous-ai-agents","description":"Chunk large documents for Atlas processing.","runtimes":["hermes"],"tags":["Atlas","Chunking"],"version":"0.1.0"},{"name":"caliber","lane":"Shape","category":"software-development","description":"Code quality and review caliber tool.","runtimes":["hermes"],"tags":["Code","Quality"],"version":"0.1.0"},{"name":"cited-recall","lane":"Sense","category":"note-taking","description":"Recall with citations from memory stores.","runtimes":["hermes"],"tags":["Memory","Citations"],"version":"0.1.0"},{"name":"deduplicate-skills","lane":"Shape","category":"software-development","description":"Find and merge duplicate skills.","runtimes":["hermes"],"tags":["Skills","Dedup"],"version":"0.1.0"},{"name":"email-campaign-coordination","lane":"Shape","category":"productivity","description":"Coordinate email campaigns across agents.","runtimes":["hermes"],"tags":["Email","Campaign"],"version":"0.1.0"},{"name":"enrich-memory","lane":"Shape","category":"memory","description":"Enrich memory entries with metadata.","runtimes":["hermes"],"tags":["Memory","Enrich"],"version":"0.1.0"},{"name":"ephemeral-system-prompt","lane":"Shape","category":"devops","description":"Generate ephemeral system prompts for agents.","runtimes":["hermes"],"tags":["System","Prompt"],"version":"0.1.0"},{"name":"hermes-display-density","lane":"Shape","category":"productivity","description":"Tune Hermes output density via display config.","runtimes":["hermes"],"tags":["Display","Density"],"version":"0.1.0"},{"name":"iterm2-python-api","lane":"Execute","category":"apple","description":"Control iTerm2 via Python API.","runtimes":["hermes","platform:macos"],"tags":["ITerm","Python"],"version":"0.1.0"},{"name":"learn-skill-from-request","lane":"Shape","category":"software-development","description":"Learn reusable skills from user requests.","runtimes":["hermes"],"tags":["Skills","Learning"],"version":"0.1.0"},{"name":"mcp-env-var-interpolation","lane":"Shape","category":"autonomous-ai-agents","description":"Configure MCP servers with env-var placeholders from .env.","runtimes":["hermes"],"tags":["Mcp","Env","Config"],"version":"0.1.0"},{"name":"memory-deepening","lane":"Shape","category":"memory","description":"Deepen memory with structured analysis.","runtimes":["hermes"],"tags":["Memory","Deep"],"version":"0.1.0"},{"name":"memory-sop","lane":"Shape","category":"note-taking","description":"Memory standard operating procedure.","runtimes":["hermes"],"tags":["Memory","Sop"],"version":"0.1.0"},{"name":"memory-sop-audit","lane":"Spec","category":"note-taking","description":"Audit memory SOP compliance.","runtimes":["hermes"],"tags":["Memory","Audit"],"version":"0.1.0"},{"name":"memory-sop-drain","lane":"Shape","category":"note-taking","description":"Drain stale memory SOP entries.","runtimes":["hermes"],"tags":["Memory","Drain"],"version":"0.1.0"},{"name":"memory-sop-feedback-loop","lane":"Shape","category":"note-taking","description":"Feedback loop for memory SOP.","runtimes":["hermes"],"tags":["Memory","Feedback"],"version":"0.1.0"},{"name":"messaging-platform-integration","lane":"Sense","category":"devops","description":"Integrate messaging platforms with Hermes.","runtimes":["hermes"],"tags":["Messaging","Integration"],"version":"0.1.0"},{"name":"scout-prioritization","lane":"Shape","category":"autonomous-ai-agents","description":"Prioritize scout findings for action.","runtimes":["hermes"],"tags":["Scout","Priority"],"version":"0.1.0"},{"name":"session-close-ritual","lane":"Execute","category":"note-taking","description":"Structured session close ritual.","runtimes":["hermes"],"tags":["Session","Ritual"],"version":"0.1.0"},{"name":"skills-sh","lane":"Execute","category":"software-development","description":"Discover, install, and manage agent skills from skills.sh.","runtimes":["hermes"],"tags":["Skills","Registry"],"version":"0.1.0"},{"name":"start-hindsight-honcho-holographic","lane":"Shape","category":"devops","description":"Start hindsight, honcho, and holographic memory services.","runtimes":["hermes"],"tags":["Memory","Services"],"version":"0.1.0"},{"name":"sudo-password","lane":"Shape","category":"productivity","description":"Use sudo in terminal without interactive prompts.","runtimes":["hermes"],"tags":["Sudo","Password"],"version":"0.1.0"},{"name":"turn-sync","lane":"Transfer","category":"note-taking","description":"Sync turns to memory planes.","runtimes":["hermes"],"tags":["Turn","Sync"],"version":"0.1.0"}]
+</script>
+
+<script>
+(function() {
+  'use strict';
+
+  const LANES = ['Sense', 'Shape', 'Spec', 'Execute', 'Transfer'];
+  const LANE_COLORS = {
+    'Sense':    '#506050',
+    'Shape':    '#B58932',
+    'Spec':     '#A56D4A',
+    'Execute':  '#7D6B8A',
+    'Transfer': '#5A7A8A'
+  };
+
+  let allSkills = [];
+  let selectedSkill = null;
+  let activeCategory = null;
+  let themeRotation = 0;
+
+  // ─── Theme Toggle ───
+  const themeToggle = document.getElementById('themeToggle');
+  const themeIcon = document.getElementById('themeIcon');
+
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    try { localStorage.setItem('hermes-skills-theme', theme); } catch(e) {}
+  }
+
+  // Init theme from storage or prefers-color-scheme
+  try {
+    const saved = localStorage.getItem('hermes-skills-theme');
+    if (saved) {
+      applyTheme(saved);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      applyTheme('dark');
+    }
+  } catch(e) {}
+
+  themeToggle.addEventListener('click', function() {
+    const current = document.documentElement.getAttribute('data-theme');
+    const next = current === 'dark' ? 'light' : 'dark';
+    themeRotation += 60;
+    themeIcon.style.transform = 'rotate(' + themeRotation + 'deg)';
+    applyTheme(next);
+  });
+
+  // ─── Helpers ───
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function normalizeSkill(s) {
+    return {
+      name: s.name || s.id || 'unknown',
+      lane: s.lane || 'Shape',
+      category: s.category || 'uncategorized',
+      description: s.description || '',
+      runtimes: s.runtimes || [],
+      tags: s.tags || [],
+      version: s.version || '',
+      available_in: s.available_in || []
+    };
+  }
+
+  // ─── Build category pills ───
+  function buildCategoryPills(skills) {
+    const cats = [...new Set(skills.map(s => s.category))].sort();
+    const container = document.getElementById('categoryPills');
+    container.innerHTML = '';
+    cats.forEach(cat => {
+      const pill = document.createElement('button');
+      pill.className = 'cat-pill' + (activeCategory === cat ? ' active' : '');
+      pill.textContent = cat;
+      pill.addEventListener('click', function() {
+        activeCategory = (activeCategory === cat) ? null : cat;
+        render();
+      });
+      container.appendChild(pill);
+    });
+  }
+
+  // ─── Filter skills ───
+  function getFilteredSkills() {
+    const search = document.getElementById('searchInput').value.toLowerCase().trim();
+    const laneFilter = document.getElementById('laneFilter').value;
+
+    return allSkills.filter(s => {
+      if (laneFilter !== 'All' && s.lane !== laneFilter) return false;
+      if (activeCategory && s.category !== activeCategory) return false;
+      if (search) {
+        const haystack = (s.name + ' ' + s.description + ' ' + (s.tags || []).join(' ') + ' ' + s.category).toLowerCase();
+        if (!haystack.includes(search)) return false;
+      }
+      return true;
+    });
+  }
+
+  // ─── Render Railway ───
+  function render() {
+    const filtered = getFilteredSkills();
+    const railway = document.getElementById('railway');
+    railway.innerHTML = '';
+
+    let totalShown = 0;
+
+    LANES.forEach(laneName => {
+      const laneSkills = filtered.filter(s => s.lane === laneName);
+
+      const laneEl = document.createElement('div');
+      laneEl.className = 'lane';
+      laneEl.setAttribute('data-lane', laneName);
+      laneEl.style.setProperty('--lane-accent', LANE_COLORS[laneName]);
+
+      const header = document.createElement('div');
+      header.className = 'lane-header';
+      header.innerHTML = '<span>' + escapeHtml(laneName) + '</span><span class="lane-count">' + laneSkills.length + '</span>';
+      laneEl.appendChild(header);
+
+      laneSkills.forEach(skill => {
+        const card = createStationCard(skill, laneName);
+        laneEl.appendChild(card);
+        totalShown++;
+      });
+
+      railway.appendChild(laneEl);
+    });
+
+    if (totalShown === 0) {
+      railway.innerHTML = '<div class="no-results">No skills match your filters.</div>';
+    }
+
+    // Re-apply selected state
+    if (selectedSkill) {
+      const card = railway.querySelector('[data-skill="' + CSS.escape(selectedSkill) + '"]');
+      if (card) card.classList.add('selected');
+    }
+  }
+
+  function createStationCard(skill, laneName) {
+    const card = document.createElement('div');
+    card.className = 'station-card';
+    card.setAttribute('tabindex', '0');
+    card.setAttribute('role', 'button');
+    card.setAttribute('aria-label', 'View details for ' + skill.name);
+    card.setAttribute('data-skill', skill.name);
+
+    let html = '<div class="card-name">' + escapeHtml(skill.name) + '</div>';
+    html += '<div class="card-desc">' + escapeHtml(skill.description) + '</div>';
+    html += '<div class="card-chips">';
+    html += '<span class="card-cat-chip">' + escapeHtml(skill.category) + '</span>';
+    (skill.tags || []).slice(0, 3).forEach(tag => {
+      html += '<span class="tag-chip">' + escapeHtml(tag) + '</span>';
+    });
+    if ((skill.tags || []).length > 3) {
+      html += '<span class="tag-chip">+' + (skill.tags.length - 3) + '</span>';
+    }
+    html += '</div>';
+
+    card.innerHTML = html;
+
+    card.addEventListener('click', function() { selectSkill(skill.name); });
+    card.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        selectSkill(skill.name);
+      }
+    });
+
+    return card;
+  }
+
+  // ─── Select skill → detail rail ───
+  function selectSkill(name) {
+    selectedSkill = name;
+    // Update selected class
+    document.querySelectorAll('.station-card').forEach(c => c.classList.remove('selected'));
+    const card = document.querySelector('[data-skill="' + CSS.escape(name) + '"]');
+    if (card) card.classList.add('selected');
+
+    const skill = allSkills.find(s => s.name === name);
+    if (!skill) return;
+
+    const rail = document.getElementById('detailRail');
+    const laneColor = LANE_COLORS[skill.lane] || '#A56D4A';
+    const laneColorRgba = hexToRgba(laneColor, 0.15);
+
+    let html = '';
+    html += '<div class="detail-name">' + escapeHtml(skill.name) + '</div>';
+    html += '<span class="detail-lane-badge" style="background:' + laneColorRgba + ';color:' + laneColor + ';">' + escapeHtml(skill.lane) + '</span>';
+    html += '<div class="detail-desc">' + escapeHtml(skill.description) + '</div>';
+
+    html += '<div class="detail-section"><div class="detail-label">Category</div><div class="detail-value">' + escapeHtml(skill.category) + '</div></div>';
+
+    if (skill.version) {
+      html += '<div class="detail-section"><div class="detail-label">Version</div><div class="detail-value">v' + escapeHtml(skill.version) + '</div></div>';
+    }
+
+    if (skill.available_in && skill.available_in.length > 0) {
+      html += '<div class="detail-section"><div class="detail-label">Available In</div><div class="detail-value">' + skill.available_in.map(escapeHtml).join(', ') + '</div></div>';
+    }
+
+    if (skill.runtimes && skill.runtimes.length > 0) {
+      html += '<div class="detail-section"><div class="detail-label">Runtimes</div><div class="detail-runtimes">';
+      skill.runtimes.forEach(rt => {
+        html += '<span class="runtime-chip">' + escapeHtml(rt) + '</span>';
+      });
+      html += '</div></div>';
+    }
+
+    if (skill.tags && skill.tags.length > 0) {
+      html += '<div class="detail-section"><div class="detail-label">Tags</div><div class="detail-tags">';
+      skill.tags.forEach(tag => {
+        html += '<span class="tag-chip">' + escapeHtml(tag) + '</span>';
+      });
+      html += '</div></div>';
+    }
+
+    rail.innerHTML = html;
+  }
+
+  function hexToRgba(hex, alpha) {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
+  }
+
+  // ─── Live indicator ───
+  function updateLiveIndicator(count, generated, isFallback) {
+    const indicator = document.getElementById('liveIndicator');
+    const text = document.getElementById('liveText');
+    indicator.classList.toggle('fallback', !!isFallback);
+    if (isFallback) {
+      text.textContent = count + ' skills · fallback data';
+    } else {
+      text.textContent = count + ' skills · updated ' + (generated || 'unknown');
+    }
+  }
+
+  // ─── Load data ───
+  async function loadData() {
+    try {
+      const response = await fetch('./registry.json', { cache: 'no-store' });
+      if (!response.ok) throw new Error('HTTP ' + response.status);
+      const data = await response.json();
+      const skills = (data.skills || []).filter(s => s.author === 'Hermes').map(normalizeSkill);
+      if (skills.length === 0) throw new Error('No Hermes skills found');
+      allSkills = skills;
+      buildCategoryPills(allSkills);
+      render();
+      updateLiveIndicator(allSkills.length, data.generated || data.updated || '', false);
+    } catch(err) {
+      // Fall back to embedded data
+      const fallbackEl = document.getElementById('fallbackData');
+      const fallbackRaw = fallbackEl.textContent.trim();
+      const fallbackSkills = JSON.parse(fallbackRaw).map(normalizeSkill);
+      allSkills = fallbackSkills;
+      buildCategoryPills(allSkills);
+      render();
+      updateLiveIndicator(allSkills.length, 'fallback', true);
+    }
+  }
+
+  // ─── Event listeners ───
+  document.getElementById('searchInput').addEventListener('input', render);
+  document.getElementById('laneFilter').addEventListener('change', render);
+
+  // ─── Init ───
+  loadData();
+})();
+</script>
+
+</body>
+</html>
