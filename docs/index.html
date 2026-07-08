@@ -37,6 +37,62 @@
   --shadow-elevated: rgba(0,0,0,0.25) 0px 4px 24px;
 }
 
+/* ─── Dawn: cool pre-dawn mist ─── */
+[data-theme="dawn"] {
+  --canvas: #E4E8E2; --surface: #ECEFE8; --surface-raised: #E0E5DC;
+  --text-primary: #1F2A26; --text-body: #2A3B30; --text-muted: #6B7B70; --text-subtle: #8A9A8E;
+  --border-whisper: #D4D9D0; --border-strong: #C4C9C0;
+  --terracotta: #8B6A4A; --terracotta-ink: #6A4A30;
+  --sage-deep: #4A5A4A; --sage-mid: #5A6A5A; --sage-light: #90A090;
+  --sage-ramp-0: #D8DCD2; --sage-ramp-1: #B8C4B0; --sage-ramp-2: #90A090; --sage-ramp-3: #688068; --sage-ramp-4: #4A5A4A;
+  --leaf-green: #4A6B34; --grain-gold: #D8B84E; --grain-gold-ink: #7A6A10;
+  --shadow-whisper: rgba(0,0,0,0.05) 0px 2px 12px;
+  --shadow-elevated: rgba(0,0,0,0.10) 0px 4px 24px;
+  --lane-sense: #4A5A4A; --lane-shape: #A88032; --lane-spec: #8B6A4A; --lane-execute: #7D6B8A; --lane-transfer: #5A7A8A;
+}
+
+/* ─── Sunrise: soft warm coral-pink glow ─── */
+[data-theme="sunrise"] {
+  --canvas: #F1E8E2; --surface: #F8F0E8; --surface-raised: #ECE0D6;
+  --text-primary: #2A251F; --text-body: #3A322C; --text-muted: #7A6B61; --text-subtle: #9A8A80;
+  --border-whisper: #E0D4C8; --border-strong: #D0C4B8;
+  --terracotta: #B56A4A; --terracotta-ink: #8A4A30;
+  --sage-deep: #506050; --sage-mid: #607060; --sage-light: #A0B098;
+  --sage-ramp-0: #ECE0D6; --sage-ramp-1: #CCD0BC; --sage-ramp-2: #A0B098; --sage-ramp-3: #708068; --sage-ramp-4: #506050;
+  --leaf-green: #507634; --grain-gold: #F5D06E; --grain-gold-ink: #8A6A10;
+  --shadow-whisper: rgba(0,0,0,0.05) 0px 2px 12px;
+  --shadow-elevated: rgba(0,0,0,0.10) 0px 4px 24px;
+  --lane-sense: #506050; --lane-shape: #C59932; --lane-spec: #B56A4A; --lane-execute: #7D6B8A; --lane-transfer: #5A7A8A;
+}
+
+/* ─── Twilight: warm golden hour amber ─── */
+[data-theme="twilight"] {
+  --canvas: #F0E8D4; --surface: #F5EDE0; --surface-raised: #E8E0CC;
+  --text-primary: #2A2015; --text-body: #3A3025; --text-muted: #7A6E5A; --text-subtle: #9A8A75;
+  --border-whisper: #DCCFB8; --border-strong: #CCBFA8;
+  --terracotta: #A55A3A; --terracotta-ink: #7A3A20;
+  --sage-deep: #506050; --sage-mid: #607060; --sage-light: #A0B098;
+  --sage-ramp-0: #E8E0CC; --sage-ramp-1: #C8D0B8; --sage-ramp-2: #A0B098; --sage-ramp-3: #708068; --sage-ramp-4: #506050;
+  --leaf-green: #507634; --grain-gold: #F8D870; --grain-gold-ink: #8A6A10;
+  --shadow-whisper: rgba(0,0,0,0.06) 0px 2px 12px;
+  --shadow-elevated: rgba(0,0,0,0.12) 0px 4px 24px;
+  --lane-sense: #506050; --lane-shape: #B58932; --lane-spec: #A55A3A; --lane-execute: #7D6B8A; --lane-transfer: #5A7A8A;
+}
+
+/* ─── Dusk: deep indigo twilight (bridge between twilight and dark) ─── */
+[data-theme="dusk"] {
+  --canvas: #2A2530; --surface: #302B38; --surface-raised: #383340;
+  --text-primary: #D8D2C8; --text-body: #C8C2B8; --text-muted: #9A92A0; --text-subtle: #7A7280;
+  --border-whisper: #3A3540; --border-strong: #4A4550;
+  --terracotta: #8B6A5A; --terracotta-ink: #6A4A40;
+  --sage-deep: #607060; --sage-mid: #708070; --sage-light: #90A090;
+  --sage-ramp-0: #3A3540; --sage-ramp-1: #4A5050; --sage-ramp-2: #607060; --sage-ramp-3: #809078; --sage-ramp-4: #607060;
+  --leaf-green: #5A7644; --grain-gold: #B89848; --grain-gold-ink: #8A6A30;
+  --shadow-whisper: rgba(0,0,0,0.20) 0px 2px 12px;
+  --shadow-elevated: rgba(0,0,0,0.30) 0px 4px 24px;
+  --lane-sense: #607060; --lane-shape: #988032; --lane-spec: #8B6A5A; --lane-execute: #6D5B7A; --lane-transfer: #4A6A7A;
+}
+
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 html { scroll-behavior: smooth; }
@@ -48,7 +104,27 @@ body {
   font-size: var(--text-base);
   line-height: 1.6;
   min-height: 100vh;
-  transition: background 0.3s ease, color 0.3s ease;
+  transition: background-color 2s ease, color 2s ease;
+}
+
+/* ─── Atmospheric transition for themed elements ─── */
+.theme-toggle,
+.theme-toggle svg,
+.live-indicator,
+.search-input,
+.lane-filter,
+.cat-pill,
+.lane-header,
+.station-card,
+.detail-rail,
+.runtime-chip,
+.card-cat-chip,
+.tag-chip,
+.app-header,
+.app-footer,
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-thumb {
+  transition: background-color 2s ease, color 2s ease, border-color 2s ease;
 }
 
 /* ─── Header ─── */
@@ -547,35 +623,148 @@ body {
   let selectedSkill = null;
   let activeCategory = null;
 
-  // ─── Theme Toggle ───
+  // ─── Theme Toggle (6-mode solar-aware) ───
   const themeToggle = document.getElementById('themeToggle');
   const themeIcon = document.getElementById('themeIcon');
+  const THEME_CYCLE = ['light', 'dawn', 'sunrise', 'twilight', 'dusk', 'dark'];
+  let themeClickCount = 0;
+
+  // ─── NOAA Solar Calculation (adapted from Sally Starfish) ───
+  // Computes sunrise/sunset for a given lat/lon and date.
+  // Uses a simplified NOAA algorithm; default mid-latitude for global docs.
+  function computeSunTimes(date, lat, lon) {
+    // Day of year
+    const start = new Date(date.getFullYear(), 0, 0);
+    const diff = (date - start) + ((start.getTimezoneOffset() - date.getTimezoneOffset()) * 60 * 1000);
+    const dayOfYear = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+    // Solar declination (radians)
+    const decl = 23.45 * Math.PI / 180 * Math.cos(2 * Math.PI * (dayOfYear - 172) / 365);
+
+    // Hour angle at sunrise/sunset (radians)
+    const latRad = lat * Math.PI / 180;
+    const cosH = -Math.tan(latRad) * Math.tan(decl);
+
+    // If sun never sets/rises, use fallback
+    if (cosH > 1) return { sunrise: 0, sunset: 24 }; // polar night
+    if (cosH < -1) return { sunrise: 12, sunset: 12 }; // midnight sun
+
+    const H = Math.acos(cosH); // radians
+    const Hhours = H * 180 / Math.PI / 15; // hours
+
+    // Equation of time (minutes) — simplified
+    const B = 2 * Math.PI * (dayOfYear - 81) / 364;
+    const EoT = 9.87 * Math.sin(2 * B) - 7.53 * Math.cos(B) - 1.5 * Math.sin(B);
+
+    // Solar noon (local solar time) in hours
+    const solarNoon = 12 - lon / 15 + EoT / 60;
+
+    const sunrise = solarNoon - Hhours;
+    const sunset = solarNoon + Hhours;
+
+    return { sunrise: sunrise, sunset: sunset };
+  }
+
+  // ─── Determine natural theme from visitor's local time ───
+  function naturalTheme() {
+    const now = new Date();
+
+    // Try to get visitor's timezone; use a mid-latitude default for solar calc
+    // Default to lat=45, lon based on timezone offset (approximate)
+    let lat = 45;
+    let lon = -now.getTimezoneOffset() / 4; // rough: 15° per hour, offset in minutes → /4
+
+    const times = computeSunTimes(now, lat, lon);
+    const localHour = now.getHours() + now.getMinutes() / 60;
+
+    // Theme windows (in hours, local time):
+    // dawn:     50min before sunrise to 10min before
+    // sunrise:  10min before to 10min after
+    // twilight: 10min after sunrise to 30min after  /  30min before sunset to 10min before sunset
+    // light:    daytime
+    // dusk:     10min after sunset to 50min after
+    // dark:     night
+
+    const sunriseH = times.sunrise;
+    const sunsetH = times.sunset;
+
+    const dawnStart = sunriseH - 50 / 60;
+    const dawnEnd = sunriseH - 10 / 60;
+    const sunriseStart = sunriseH - 10 / 60;
+    const sunriseEnd = sunriseH + 10 / 60;
+    const morningTwilightEnd = sunriseH + 30 / 60;
+    const eveningTwilightStart = sunsetH - 30 / 60;
+    const eveningTwilightEnd = sunsetH - 10 / 60;
+    const duskStart = sunsetH + 10 / 60;
+    const duskEnd = sunsetH + 50 / 60;
+
+    if (localHour >= dawnStart && localHour < dawnEnd) return 'dawn';
+    if (localHour >= sunriseStart && localHour < sunriseEnd) return 'sunrise';
+    if (localHour >= sunriseEnd && localHour < morningTwilightEnd) return 'twilight';
+    if (localHour >= morningTwilightEnd && localHour < eveningTwilightStart) return 'light';
+    if (localHour >= eveningTwilightStart && localHour < eveningTwilightEnd) return 'twilight';
+    if (localHour >= eveningTwilightEnd && localHour < duskStart) return 'light';
+    if (localHour >= duskStart && localHour < duskEnd) return 'dusk';
+    // Night
+    return 'dark';
+  }
 
   function applyTheme(theme) {
     document.documentElement.setAttribute('data-theme', theme);
-    try { localStorage.setItem('hermes-skills-theme', theme); } catch(e) {}
   }
 
-  // Init theme from storage or prefers-color-scheme
+  function setIconRotation(themeName) {
+    const idx = THEME_CYCLE.indexOf(themeName);
+    themeClickCount = idx >= 0 ? idx : 0;
+    themeIcon.style.transform = 'rotate(' + (themeClickCount * 60) + 'deg)';
+  }
+
+  // ─── Init theme: manual override (with date check) or natural ───
+  let currentTheme = 'light';
+  let manualOverride = false;
+
   try {
-    const saved = localStorage.getItem('hermes-skills-theme');
-    if (saved) {
-      applyTheme(saved);
-    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      applyTheme('dark');
-    }
-  } catch(e) {}
+    const stored = localStorage.getItem('hermes-skills-theme');
+    const storedDate = localStorage.getItem('hermes-skills-theme-date');
+    const today = new Date().toDateString();
 
-  // Set initial icon rotation based on current theme
-  if (document.documentElement.getAttribute('data-theme') === 'dark') {
-    themeIcon.style.transform = 'rotate(180deg)';
+    if (stored && storedDate === today) {
+      // Manual override still valid for today
+      currentTheme = stored;
+      manualOverride = true;
+    } else {
+      // No valid override — use natural theme
+      if (stored) {
+        // Clear stale override
+        localStorage.removeItem('hermes-skills-theme');
+        localStorage.removeItem('hermes-skills-theme-date');
+      }
+      currentTheme = naturalTheme();
+    }
+  } catch(e) {
+    // localStorage unavailable — fall back to natural theme
+    try { currentTheme = naturalTheme(); } catch(e2) { currentTheme = 'light'; }
   }
 
+  applyTheme(currentTheme);
+  setIconRotation(currentTheme);
+
+  // ─── Toggle: cycle through all 6 themes ───
   themeToggle.addEventListener('click', function() {
     const current = document.documentElement.getAttribute('data-theme');
-    const next = current === 'dark' ? 'light' : 'dark';
-    themeIcon.style.transform = next === 'dark' ? 'rotate(180deg)' : 'rotate(0deg)';
+    const currentIdx = THEME_CYCLE.indexOf(current);
+    const nextIdx = (currentIdx + 1) % THEME_CYCLE.length;
+    const next = THEME_CYCLE[nextIdx];
+
+    themeClickCount++;
+    themeIcon.style.transform = 'rotate(' + (themeClickCount * 60) + 'deg)';
     applyTheme(next);
+
+    // Store manual override with date
+    try {
+      localStorage.setItem('hermes-skills-theme', next);
+      localStorage.setItem('hermes-skills-theme-date', new Date().toDateString());
+    } catch(e) {}
   });
 
   // ─── Helpers ───
