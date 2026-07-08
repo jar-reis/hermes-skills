@@ -169,7 +169,10 @@ body {
 .theme-toggle svg {
   width: 28px;
   height: 28px;
-  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.theme-toggle polygon {
+  transition: fill 0.4s ease;
 }
 
 /* ─── Live indicator ─── */
@@ -562,15 +565,14 @@ body {
     </div>
   </div>
   <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme" title="Toggle theme">
-    <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" id="themeIcon">
-      <!-- Sun behind horizon -->
-      <line x1="2" y1="18" x2="26" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-      <path d="M8 18 A6 6 0 0 1 20 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>
-      <line x1="14" y1="3" x2="14" y2="7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
-      <line x1="6" y1="6" x2="8.5" y2="8.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
-      <line x1="22" y1="6" x2="19.5" y2="8.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
-      <line x1="3" y1="11" x2="6" y2="11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
-      <line x1="25" y1="11" x2="22" y2="11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+    <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" id="themeIcon">
+      <!-- Hexagon wedge icon: 6 triangular wedges, one filled = current theme -->
+      <polygon class="wedge wedge-0" points="14,14 14,2 24.4,8" fill="none" stroke="currentColor" stroke-width="1.5"/>
+      <polygon class="wedge wedge-1" points="14,14 24.4,8 24.4,20" fill="none" stroke="currentColor" stroke-width="1.5"/>
+      <polygon class="wedge wedge-2" points="14,14 24.4,20 14,26" fill="none" stroke="currentColor" stroke-width="1.5"/>
+      <polygon class="wedge wedge-3" points="14,14 14,26 3.6,20" fill="none" stroke="currentColor" stroke-width="1.5"/>
+      <polygon class="wedge wedge-4" points="14,14 3.6,20 3.6,8" fill="none" stroke="currentColor" stroke-width="1.5"/>
+      <polygon class="wedge wedge-5" points="14,14 3.6,8 14,2" fill="none" stroke="currentColor" stroke-width="1.5"/>
     </svg>
   </button>
 </header>
@@ -716,7 +718,11 @@ body {
   function setIconRotation(themeName) {
     const idx = THEME_CYCLE.indexOf(themeName);
     themeClickCount = idx >= 0 ? idx : 0;
-    themeIcon.style.transform = 'rotate(' + (themeClickCount * 60) + 'deg)';
+    // Update which wedge is filled instead of rotating the SVG
+    var wedges = themeIcon.querySelectorAll('.wedge');
+    for (var i = 0; i < wedges.length; i++) {
+      wedges[i].setAttribute('fill', i === themeClickCount ? 'currentColor' : 'none');
+    }
   }
 
   // ─── Init theme: manual override (with date check) or natural ───
@@ -757,7 +763,10 @@ body {
     const next = THEME_CYCLE[nextIdx];
 
     themeClickCount++;
-    themeIcon.style.transform = 'rotate(' + (themeClickCount * 60) + 'deg)';
+    var wedges = themeIcon.querySelectorAll('.wedge');
+    for (var i = 0; i < wedges.length; i++) {
+      wedges[i].setAttribute('fill', i === (themeClickCount % THEME_CYCLE.length) ? 'currentColor' : 'none');
+    }
     applyTheme(next);
 
     // Store manual override with date
