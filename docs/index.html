@@ -566,13 +566,14 @@ body {
   </div>
   <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme" title="Toggle theme">
     <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" id="themeIcon">
-      <!-- Hexagon wedge icon: 6 triangular wedges, one filled = current theme -->
-      <polygon class="wedge wedge-0" points="14,14 14,2 24.4,8" fill="none" stroke="currentColor" stroke-width="1.5"/>
-      <polygon class="wedge wedge-1" points="14,14 24.4,8 24.4,20" fill="none" stroke="currentColor" stroke-width="1.5"/>
-      <polygon class="wedge wedge-2" points="14,14 24.4,20 14,26" fill="none" stroke="currentColor" stroke-width="1.5"/>
-      <polygon class="wedge wedge-3" points="14,14 14,26 3.6,20" fill="none" stroke="currentColor" stroke-width="1.5"/>
-      <polygon class="wedge wedge-4" points="14,14 3.6,20 3.6,8" fill="none" stroke="currentColor" stroke-width="1.5"/>
-      <polygon class="wedge wedge-5" points="14,14 3.6,8 14,2" fill="none" stroke="currentColor" stroke-width="1.5"/>
+      <!-- Hexagon wedge icon: 6 triangular wedges, cumulative fill = current theme -->
+      <polygon class="hex-outline" points="14,2 24.4,8 24.4,20 14,26 3.6,20 3.6,8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+      <polygon class="wedge wedge-0" points="14,14 14,2 24.4,8" fill="none"/>
+      <polygon class="wedge wedge-1" points="14,14 24.4,8 24.4,20" fill="none"/>
+      <polygon class="wedge wedge-2" points="14,14 24.4,20 14,26" fill="none"/>
+      <polygon class="wedge wedge-3" points="14,14 14,26 3.6,20" fill="none"/>
+      <polygon class="wedge wedge-4" points="14,14 3.6,20 3.6,8" fill="none"/>
+      <polygon class="wedge wedge-5" points="14,14 3.6,8 14,2" fill="none"/>
     </svg>
   </button>
 </header>
@@ -718,10 +719,10 @@ body {
   function setIconRotation(themeName) {
     const idx = THEME_CYCLE.indexOf(themeName);
     themeClickCount = idx >= 0 ? idx : 0;
-    // Update which wedge is filled instead of rotating the SVG
+    // Cumulative fill: wedges 0..idx are filled (hexagon fills up as you cycle)
     var wedges = themeIcon.querySelectorAll('.wedge');
     for (var i = 0; i < wedges.length; i++) {
-      wedges[i].setAttribute('fill', i === themeClickCount ? 'currentColor' : 'none');
+      wedges[i].setAttribute('fill', i <= themeClickCount ? 'currentColor' : 'none');
     }
   }
 
@@ -765,7 +766,7 @@ body {
     themeClickCount++;
     var wedges = themeIcon.querySelectorAll('.wedge');
     for (var i = 0; i < wedges.length; i++) {
-      wedges[i].setAttribute('fill', i === (themeClickCount % THEME_CYCLE.length) ? 'currentColor' : 'none');
+      wedges[i].setAttribute('fill', i <= (themeClickCount % THEME_CYCLE.length) ? 'currentColor' : 'none');
     }
     applyTheme(next);
 
