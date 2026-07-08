@@ -95,9 +95,6 @@ body {
   height: 28px;
   transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.theme-toggle.spinning svg {
-  transform: rotate(60deg);
-}
 
 /* ─── Live indicator ─── */
 .live-indicator {
@@ -490,11 +487,14 @@ body {
   </div>
   <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme" title="Toggle theme">
     <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" id="themeIcon">
-      <!-- Semicircle tide dial -->
-      <path d="M4 18 A10 10 0 0 1 24 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>
-      <path d="M4 18 A10 10 0 0 1 14 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.4"/>
-      <line x1="14" y1="18" x2="14" y2="10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-      <circle cx="14" cy="18" r="2" fill="currentColor"/>
+      <!-- Sun behind horizon -->
+      <line x1="2" y1="18" x2="26" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      <path d="M8 18 A6 6 0 0 1 20 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>
+      <line x1="14" y1="3" x2="14" y2="7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+      <line x1="6" y1="6" x2="8.5" y2="8.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+      <line x1="22" y1="6" x2="19.5" y2="8.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+      <line x1="3" y1="11" x2="6" y2="11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
+      <line x1="25" y1="11" x2="22" y2="11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/>
     </svg>
   </button>
 </header>
@@ -546,7 +546,6 @@ body {
   let allSkills = [];
   let selectedSkill = null;
   let activeCategory = null;
-  let themeRotation = 0;
 
   // ─── Theme Toggle ───
   const themeToggle = document.getElementById('themeToggle');
@@ -567,11 +566,15 @@ body {
     }
   } catch(e) {}
 
+  // Set initial icon rotation based on current theme
+  if (document.documentElement.getAttribute('data-theme') === 'dark') {
+    themeIcon.style.transform = 'rotate(180deg)';
+  }
+
   themeToggle.addEventListener('click', function() {
     const current = document.documentElement.getAttribute('data-theme');
     const next = current === 'dark' ? 'light' : 'dark';
-    themeRotation += 60;
-    themeIcon.style.transform = 'rotate(' + themeRotation + 'deg)';
+    themeIcon.style.transform = next === 'dark' ? 'rotate(180deg)' : 'rotate(0deg)';
     applyTheme(next);
   });
 
