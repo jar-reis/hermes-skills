@@ -1,0 +1,97 @@
+schema_version: caliber-model-capabilities-v0.3
+last_verified_at: null
+status: draft_requires_source_refresh
+notes:
+  - "Levels are starter priors, not locked benchmark claims. Refresh with current sources before using for high-stakes routing."
+  - "Deployment path can lower or exclude a model regardless of raw capability."
+models:
+  - model_id: deterministic/tools
+    provider: local
+    family: deterministic
+    license: n/a
+    modalities: [text, data]
+    deployment_paths:
+      local_script: {allowed_data: [non_phi, sensitive_if_local_policy_allows], private: true}
+    capability:
+      text_transform: {level: -1, confidence: high, evidence: [deterministic_exact]}
+      structured_output: {level: -1, confidence: high, evidence: [schema_validator]}
+      data_analysis: {level: -1, confidence: high, evidence: [executable_code]}
+    defenders_required: [unit_test_or_validator]
+
+  - model_id: local/tiny-small-class
+    provider: local_or_open_weight
+    family: small_local
+    license: varies
+    modalities: [text]
+    deployment_paths:
+      local: {allowed_data: [non_phi, sensitive_if_policy_allows], private: true}
+    capability:
+      text_transform: {level: 1, confidence: medium, evidence: [internal_fixture_required]}
+      instruction_following: {level: 1, confidence: low, evidence: [internal_fixture_required]}
+      general_reasoning: {level: 1, confidence: low, evidence: [benchmark_refresh_required]}
+      local_private: {level: 4, confidence: high, evidence: [local_runtime]}
+    defenders_required: [schema_validator, sample_review]
+
+  - model_id: api/workhorse-frontier-class
+    provider: mixed
+    family: workhorse_api
+    license: proprietary
+    modalities: [text, vision]
+    deployment_paths:
+      first_party_api: {allowed_data: [non_phi], private: false}
+      private_or_compliant_if_available: {allowed_data: [regulated_private, non_sensitive], private: true, verify_required: true}
+    capability:
+      text_transform: {level: 3, confidence: medium, evidence: [arena, internal]}
+      instruction_following: {level: 3, confidence: medium, evidence: [ifeval, internal]}
+      general_reasoning: {level: 3, confidence: medium, evidence: [livebench, gpqa]}
+      software_engineering: {level: 3, confidence: medium, evidence: [swebench, internal_repo_tests]}
+      structured_output: {level: 3, confidence: medium, evidence: [schema_eval]}
+      vision_static: {level: 3, confidence: low, evidence: [mmmu, internal]}
+    defenders_required: [surface_specific_defender]
+
+  - model_id: api/frontier-reasoning-class
+    provider: mixed
+    family: frontier_reasoning
+    license: proprietary
+    modalities: [text, vision]
+    deployment_paths:
+      first_party_api: {allowed_data: [non_phi], private: false}
+      private_or_compliant_if_available: {allowed_data: [regulated_private, non_sensitive], private: true, verify_required: true}
+    capability:
+      text_transform: {level: 4, confidence: medium, evidence: [arena, internal]}
+      instruction_following: {level: 4, confidence: medium, evidence: [ifeval, internal]}
+      general_reasoning: {level: 4, confidence: medium, evidence: [livebench, gpqa, hle]}
+      math_formal: {level: 4, confidence: medium, evidence: [aime, math]}
+      software_engineering: {level: 4, confidence: medium, evidence: [swebench_pro, internal_repo_tests]}
+      long_context_synthesis: {level: 4, confidence: low, evidence: [longbench_v2]}
+      strategy_architecture: {level: 4, confidence: low, evidence: [internal_gold_cases]}
+    defenders_required: [surface_specific_defender, human_gate_if_stakes_high]
+
+  - model_id: local/open-weight-frontier-class
+    provider: local_or_open_weight
+    family: open_weight_frontier
+    license: varies
+    modalities: [text]
+    deployment_paths:
+      local: {allowed_data: [non_phi, regulated_private_if_local_policy_allows], private: true}
+    capability:
+      text_transform: {level: 3, confidence: medium, evidence: [arena, internal]}
+      general_reasoning: {level: 3, confidence: low, evidence: [livebench, gpqa]}
+      software_engineering: {level: 3, confidence: low, evidence: [swebench, internal_repo_tests]}
+      code_generation: {level: 3, confidence: medium, evidence: [humaneval, internal]}
+      local_private: {level: 5, confidence: high, evidence: [local_runtime]}
+    defenders_required: [surface_specific_defender]
+
+  - model_id: specialist/coding-class
+    provider: mixed
+    family: coding_specialist
+    license: varies
+    modalities: [text]
+    deployment_paths:
+      first_party_api: {allowed_data: [non_phi], private: false}
+      local: {allowed_data: [non_phi, regulated_private_if_local_policy_allows], private: true}
+    capability:
+      code_generation: {level: 4, confidence: high, evidence: [swebench, aider, internal]}
+      software_engineering: {level: 4, confidence: medium, evidence: [swebench_pro, internal_repo_tests]}
+      agentic_coding: {level: 4, confidence: low, evidence: [terminal_bench, internal_build_loops]}
+    defenders_required: [unit_tests, code_review]

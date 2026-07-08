@@ -1,0 +1,262 @@
+---
+name: memory-sop
+version: 1.4.0
+created: 2026-06-01
+updated: 2026-06-04
+author: Hermes
+description: >
+  Fleet-wide Standard Operating Procedure for the triple memory system.
+  Covers what goes where, when to write, when to read, and cross-layer
+  hygiene. All fleet agents MUST follow this SOP.
+---
+
+# Memory SOP — Triple-Layer Procedure
+
+> **Fleet directive:** This is the canonical procedure for how every agent in the fleet
+> reads from and writes to memory. No agent may invent ad-hoc memory workflows.
+
+## Definitions
+- **Drift**: When memory (Open Brain 1, agent state) and canonical data sources (Google Calendar, Linear, Obsidian) are out of alignment. Detect drift by cross-referencing sources before claiming priorities or workflows.
+
+## Layer Map
+
+| Layer | Tool | Backend | Purpose | Size Budget | Persistence |
+|-------|------|---------|---------|-------------|-------------|
+| **L1 — Always-Injected** | `memory` (MEMORY.md / USER.md) | Flat text files, injected every turn | Identity, preferences, stable facts the agent needs *before* thinking | ≤ 2200 chars (MEMORY) / ≤ 1375 chars (USER) | Until overwritten or pruned |
+| **L2 — Knowledge Graph** | `hindsight_retain` / `hindsight_recall` / `hindsight_reflect` | pgvector on localhost:9876 | Structured facts, episode memory, semantic search | Unlimited (PG auto-manages) | Permanent until explicitly deleted |
+| **L3 — Entity-Resolved FTS** | `fact_store` (add/search/probe/reason) | SQLite FTS5 at `~/.hermes/memory_store.db` | Entity-attributed facts with trust scoring, contradiction detection, compositional queries | Unlimited (SQLite auto-manages) | Permanent until explicitly removed |
+
+### L1 file location (profile-dependent)
+
+On the Hermes/MacBook Pro profile, **L1 lives in TWO places**:
+
+  1. `~/.hermes/memories/MEMORY.md` and `~/.hermes/memories/USER.md`
+     — the runtime canonical, **injected every turn**. THIS is
+     the file the SOP budget caps apply to. Any audit that reads
+     the wrong path will produce a false "all healthy" report.
+  2. `~/MEMORY.md` and `~/USER.md` — auxiliary copies, less
+     frequently edited, kept as a backup
+
+Both sets are within budget. Drift between them is tolerated but
+should be reconciled when one side is updated. Other agents in
+the fleet may have a single L1 path — always check your profile
+config before assuming `~/MEMORY.md` is the canonical location.
+
+The audit skill `note-taking/memory-sop-audit` ships a script
+(`memory-prune.sh`) that checks both paths on this profile.
+
+## When to Use Which Layer
+
+### L1 — Always-Injected (MEMORY.md / USER.md)
+
+**USE FOR:**
+- User preferences and corrections ("I prefer concise responses")
+- Stable environment facts that every turn needs (model config, Tailscale proxy mapping)
+- Recurring pitfalls discovered across sessions ("Don't write presence JSON without a verified process")
+- Author identity, role, and routing rules
+
+**RULES:**
+1. Write **declarative facts**, not instructions to yourself. ❌ "Always respond concisely" → ✅ "User prefers concise responses"
+2. Use `§` as section delimiters — the memory system uses them for chunking
+3. Keep entries under 200 chars each. If you need more, it belongs in L2.
+4. When MEMORY.md hits **80% capacity** (≥1760 chars), proactively prune stale entries to L2 before they're silently dropped
+5. NEVER save task progress, session logs, PR numbers, commit SHAs, or ephemeral state here — those belong in session files or daily notes
+6. NEVER duplicate facts that are already stable in L2 or L3 — L1 is for *injection priority*, not storage
+
+**USER.md** is identical but for user-profile facts: communication style, preferences, pet peeves.
+
+### L2 — Knowledge Graph (Hindsight)
+
+**USE FOR:**
+- Durable facts worth keeping across sessions (7+ days of value)
+- Multi-entity relationships
+- Episode memory: "On 2026-05-29, user corrected agent verification workflow"
+- Semantic search queries: "What do we know about fleet model routing?"
+
+**RULES:**
+1. `hindsight_retain(content, context, tags)` — always provide a short `context` label
+2. Use `hindsight_recall(query)` for keyword/semantic search
+3. Use `hindsight_reflect(query)` for synthesized reasoning across memories
+4. Hindsight runs on localhost:9876 with PG at `~/.pg0/`.
+5. **Primary LLM provider: `ollama-cloud` / `kimi-k2.6:cloud`** (preferred
+   over Moonshot for data-sovereignty). Cerebras or OpenAI as fallback.
+6. **Hindsight retain MUST use `async: true`.** LLM extraction takes
+   10-30s per item and sync mode times out at 30s. POST returns 200
+   immediately; the actual ingestion happens in the background. Verify
+   with a 3-5s sleep before `recall`.
+7. If Hindsight is unreachable, fall back to L3. Do NOT fall back to L1 for knowledge-graph queries.
+8. The `hindsight` package is split into `hindsight-client` and `hindsight-embed`. The Hermes plugin imports `HindsightEmbedded` from `hindsight`, which is provided by a compatibility shim at `site-packages/hindsight/__init__.py` that composes `DaemonEmbedManager` + `Hindsight` into `HindsightEmbedded`. If you see `ImportError: cannot import name 'HindsightEmbeded'`, re-verify the shim exists and both sub-packages are at matching versions (0.7.1+).
+
+### L3 — Entity-Resolved FTS (Holographic / fact_store)
+
+**USE FOR:**
+- Attributed facts about entities: "Dramatis ratified 2026-05-26 as fleet actor model"
+- Structured data with trust scoring: factual claims that might be contradicted later
+- Compositional queries linking multiple entities: `fact_store(action='reason', entities=['dramatis', 'fleet'])`
+- Contradiction detection: `fact_store(action='contradict')` for memory hygiene
+- Probe queries: "Everything we know about X" — `fact_store(action='probe', entity='X')`
+
+**RULES:**
+1. `fact_store(action='add', content, entity, category, tags)` — always provide an `entity` for attribution
+2. Use `category` one of: `user_pref`, `project`, `tool`, `general`
+3. Use `tags` comma-separated for cross-cutting queries
+4. After using a fact from `fact_store`, rate it with `fact_feedback(action='helpful', fact_id=N)` or `fact_feedback(action='unhelpful', fact_id=N)` — this trains trust scores
+5. **L3 trust floor = silent corruption.** If all facts sit at trust_score=0.5
+   and `retrieval_count=0`, the L3 store is write-only and
+   `reason` / `contradict` queries have no signal. See
+   `note-taking/memory-sop-feedback-loop` for the fix.
+6. Prefer `fact_store` for entity-attributed claims; prefer `hindsight` for narrative/episodic memory
+
+## Cross-Layer Hygiene Rules
+
+### Deduplication
+- If a fact exists in L3 with high trust score (> 0.8), do NOT re-add it to L1. L1 is the injection shortcut, not a second store.
+- If a fact is in L2, reference it from L1 with a pointer ("Hindsight has fleet config details") rather than duplicating the full content.
+- Prune L1 entries that have a stable L2/L3 home every 7 days.
+
+### Wiki-Based Knowledge Graphs
+- **Trigger**: After saving to L3, ask:
+  > *"Save this as a wiki note in `=notes/agent-quiz/` for deeper context? (Y/n)"*
+- **If yes**:
+  1. Generate a **wiki note** (e.g., `mcp-registration-failures.md`) with:
+     - Frontmatter (metadata, sources, confidence).
+     - Synthesis (core answer).
+     - Related notes (e.g., `[[MCP]]`, `[[bifrost-troubleshooting]]`).
+  2. Link to existing notes and skills.
+  3. Use `smart_graph` to validate connections.
+- **If no**: Skip the wiki layer.
+- **Principles**:
+  - **Core simplicity**: Flat facts saved to memory.
+  - **Wiki is additive**: Only if the user opts in.
+  - **No forced complexity**: Wiki notes are standalone (no dependencies).
+
+### Escalation Path
+1. **Session starts** → L1 (auto-injected) + `hindsight_recall` for relevant context
+2. **During task** → L2 `retain` for major discoveries; L3 `add` for entity-attributed facts
+3. **User correction** → Update L1 immediately (it's the one the agent reads next turn). Also `retain` to L2 for durability.
+4. **Session ends** → Review: prune L1 if > 80%, `fact_feedback` on all L3 facts used this session, drain durable facts to L2 with `memory-drain.sh`
+## Capacity Management
+
+- **L1 MEMORY.md**: Hard limit 2,200 chars. Proactive pruning at 80% (1,760 chars). Prune stale entries to L2; delete ephemera outright.
+- **L1 USER.md**: Hard limit 1,375 chars. Proactive pruning at 80% (1,100 chars).
+- **L2 Hindsight**: No hard limit. PG auto-manages. Trust the vector index.
+- **L3 fact_store**: No hard limit. SQLite auto-manages. Use `contradict` to find and resolve conflicts quarterly.
+### Concurrent Memory Edits
+
+**Signal**: `write_file` returns `_warning: was modified since you last read it on disk` when writing to `MEMORY.md` or `USER.md`.
+
+**Root Cause**: Two Hermes sessions (e.g., cron + interactive + headless Codex) are **writing to the same L1 file simultaneously**.
+
+**Pitfalls**:
+1. **Silent Overwrite**: The second writer can **overwrite the first’s additions**.
+2. **Stale State**: The `memory` tool may reject writes due to **budget limits** if the file was modified by another session.
+
+**Workaround**:
+1. **Prefer L2 for Races**: Use `hindsight_retain` for new facts during concurrent sessions.
+2. **Consolidate Later**: Merge L2 facts into L1 in a **single-agent cleanup pass** after the race.
+3. **Document the Race**: Note the conflict in the session handoff.
+
+**Drift Resolution**:
+1. **Backup Drift**:
+   ```bash
+   cp MEMORY.md MEMORY.md.bak.$(date +%s)
+   ```
+2. **Merge Manually**:
+   ```bash
+diff MEMORY.md MEMORY.md.bak
+   ```
+3. **Add via `memory` Tool**:
+   ```python
+memory(action="add", content="...")
+   ```
+
+### References
+- [`references/memory-drift-examples.md`](references/memory-drift-examples.md): Example drift scenarios and resolutions.
+- [`references/memory-drift-examples.md`](references/memory-drift-examples.md): Example drift scenarios.
+   ```markdown
+   - Memory Conflict: L1 (`MEMORY.md`) was modified by another session. New facts saved to L2 (`hindsight_retain`).
+   ```
+
+**Rule**: Never retry a `memory` write without first **reading the latest file state**.
+
+## Anti-Patterns (DON'T)
+
+1. ❌ **Don't treat L1 as a log.** "Fixed bug #1234 on Tuesday" is ephemeral — it belongs in daily notes, not MEMORY.md
+2. ❌ **Don't use L2 for real-time state.** "Currently running PID 12345" is stale in 5 minutes — it belongs in process checks, not knowledge graph
+3. ❌ **Don't skip L3 feedback.** Every fact you retrieve from L3 should get a `fact_feedback` rating — the trust scores are useless without training data
+4. ❌ **Don't duplicate across all three layers.** Write once to the right layer, reference from others
+5. ❌ **Don't save API keys, tokens, or secrets in ANY layer.** Those belong in SOPS-encrypted `.env` files only
+6. ❌ **Don't save procedural instructions in L1.** "Always run pytest before committing" is a skill, not a memory. Put it in `~/.hermes/skills/`
+7. ❌ **Don't ignore the `§` delimiter.** It's how L1 entries are chunked and retrieved. Omitting it degrades retrieval quality
+8. ❌ **Don't store audit deltas or session-specific findings in L1.** "Audit v6: 8 CRITICAL, 119% capacity" is a snapshot that becomes stale within hours. It belongs in the audit plan file (`~/.hermes/plans/`) or a daily note, not in MEMORY.md. Stale audit data in L1 is actively harmful — it wastes the 2200-char budget on facts that are wrong by the next session and misleads future agents. If you must reference an audit, store a pointer ("See plans/ for latest fleet audit") not the findings themselves.
+9. ❌ **Don't sync-retain to Hindsight.** Always `async: true`. Sync mode times out at 30s and you'll silently lose the fact.
+10. ❌ **Don't act on a plan reference that doesn't exist.** When a user says "the X plan" or "Phase 2 of Y", ground-truth it before responding. Search `~/.hermes/plans/`, search Linear by relevant terms, search session history. If no such artifact exists, say so and ask which of the candidate interpretations they meant. Inventing a plan to fill the gap is fabrication. See `verification-before-completion/references/phantom-artifact-jac165-20260604.md` for the pattern.
+11. ❌ **Don't keep retrying a memory write that exceeds budget.** The `memory` tool rejects writes that would push L1 over the 2200-char limit, with the response showing the *current* usage count. If you see "Adding this entry (N chars) would exceed the limit", do **not** retry the same patch — first read MEMORY.md, find an entry to compress or remove (e.g., merge two related facts, drop a stale one), then re-apply. Multiple retries with the same new content waste turns and never succeed. Pattern from 2026-06-04: a 994-char new entry was rejected 5+ times because nothing was pruned first.
+12. ❌ **Don't race-write L1 from parallel sessions.** When two Hermes sessions run concurrently (e.g., cron + interactive + headless Codex on the same machine), they can both target `~/.hermes/memories/MEMORY.md`. The `write_file` tool returns a `_warning: was modified since you last read it on disk` and the second writer can silently overwrite the first's additions. If a parallel session is suspected, prefer L2 (`hindsight_retain`) for new facts during the race, then consolidate into L1 in a single-agent cleanup pass.
+13. ❌ **Don't write only to L1 when the cold-restart auto-brief reads from OBn.** The Hermes `memory` tool targets `~/.hermes/memories/MEMORY.md` (L1, runtime-injected every turn). The AGENTS.md auto-brief at session start reads a different file first: `~/Documents/=notes/claude/memory/HERMES-MEMORY.md` (OBn, vault-local, survives fleet agent handoffs). For project-level facts that should surface in the **next** session's auto-brief regardless of which agent picks it up, you must also append to OBn. The `memory` tool won't do this for you; use `write_file` (or `execute_code`) to append to HERMES-MEMORY.md explicitly. L1 is for *this* session's reasoning context; OBn is for *next* session's startup briefing. Both are needed for cold-restart resilience. Pattern observed 2026-06-04: red-team project summarized in L1 (memory tool), but the AGENTS.md auto-brief surface (OBn) was empty for that project; a cold-restart session would only have found it by reading the handoff file, and only if the work was cross-referenced there. Fix: dual-write. `references/l1-vs-obn-cold-restart-2026-06-04.md` carries the worked example.
+14. ❌ **Don't let non-§-delimited content accumulate in MEMORY.md.** The `memory` tool's round-trip guard rejects writes when the file contains content it can't parse back — tables, nested bullet hierarchies, markdown code blocks, or raw JSON. Once the file is in this state, ALL `memory(action='add')` calls fail with "content that wouldn't round-trip through the memory tool." The fix: rewrite MEMORY.md to clean §-delimited format (one `**Section Header**:` per section, flat bullet lists only, no tables, no code blocks), then retry. Backups are auto-saved as `.bak.<timestamp>` — integrate any novel entries from the latest backup. Pattern observed 2026-06-12: 7 consecutive `memory` writes rejected because the consolidated memory file contained Bifrost Quintet reachability tables and nested Paperclip bullet hierarchies. Rewriting to flat §-delimited format resolved it.
+
+## Quick Reference Card
+
+```
+WHAT                        → WHERE          → TOOL
+─────────────────────────────────────────────────────────────
+"User hates X"              → L1 USER.md     → memory(action='add', target='user')
+"User prefers Y"            → L1 USER.md     → memory(action='add', target='user')
+"Environment: Z runs on :P" → L1 MEMORY.md   → memory(action='add', target='memory')
+"Correction: don't do W"    → L1 + L2        → memory + hindsight_retain
+"Fleet runtime pattern"     → L2 + L3        → hindsight_retain + fact_store
+"Dramatis ratified 05-26"  → L3             → fact_store(action='add', entity='dramatis')
+"Every session needs XYZ"   → SKILL          → skill_manage(action='create')
+"Today I fixed bug X"      → daily note      → write_file(memory/YYYY-MM-DD.md)
+"User said Z, then we did Y" → L2 (async retain) → memory-drain.sh hermes "..."
+"Project X built in 2026-06-04" → L1 + OBn       → memory + write_file to HERMES-MEMORY.md
+```
+
+## Companion skills (this fleet)
+
+  - `note-taking/memory-sop-audit`          — one-shot L1/L2/L3 audit
+  - `note-taking/memory-sop-drain`          — L2 session-end retain
+  - `note-taking/memory-sop-feedback-loop`  — L3 fact_feedback procedure
+  - `note-taking/hindsight-memory-provider` — daemon setup + multithreading
+
+## Fleet Notification Protocol
+
+When this SOP is updated:
+1. Save the updated skill to `~/.hermes/skills/note-taking/memory-sop/SKILL.md`
+2. If live fanout is explicitly requested, post a summary through a verified Hermes `messaging` target: "Memory SOP vN updated — [key changes]. All agents must follow the triple-layer procedure."
+3. Append to fleet inbox: `=notes/claude/coordination/inbox-fleet.md`
+4. Update L2 with `hindsight_retain` noting the version change
+5. If L1 MEMORY.md references the SOP, update the pointer
+
+## Changelog
+
+- v1.4.0 (2026-06-04): anti-pattern #13 added (L1 vs OBn cold-restart
+  surface mismatch). L1 (`~/.hermes/memories/MEMORY.md`) is
+  runtime-injected every turn; OBn
+  (`~/Documents/=notes/claude/memory/HERMES-MEMORY.md`) is the
+  file the AGENTS.md auto-brief reads FIRST at session start. The
+  `memory` tool only writes to L1. For project-level facts that
+  should surface in the next session's auto-brief regardless of
+  which agent picks it up, you must also append to OBn explicitly
+  via `write_file`. Pattern observed 2026-06-04 (red-team project:
+  in L1, not in OBn, would have been invisible to a cold-restart
+  session). New reference:
+  `references/l1-vs-obn-cold-restart-2026-06-04.md`.
+- v1.3.0 (2026-06-04): anti-pattern #11 (L1 budget retry loop) and #12
+  (parallel-session write race on L1) added. The retry-loop
+  pattern was observed repeatedly in one session — five `memory`
+  tool calls in a row rejected because no pruning step was
+  interleaved. The parallel-write pattern is the cause of the
+  recurring "external edit warning" in `write_file` when
+  multiple Hermes sessions share a machine.
+- v1.2.0 (2026-06-04): anti-pattern #10 added (phantom-artifact
+  trap on plan/ticket references); L1 file location note sharpened
+  to call out the runtime canonical is `~/.hermes/memories/`, not
+  `~/`, and any audit reading the wrong path produces false
+  "all healthy" reports.
+- v1.1.0 (2026-06-03): L1 dual-location (memories/ + ~/) added; LLM provider
+  corrected to `kimi-k2.6:cloud`; Hindsight retain `async: true` rule
+  promoted to MUST; anti-pattern #9 added; fact-count note dropped (was
+  per-store, not per-SOP); companion-skills section added.
+- v1.0.0 (2026-06-01): initial ratification.

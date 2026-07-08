@@ -1,0 +1,13 @@
+# Mattermost Hermes Integration Config
+# Save to ~/.hermes/config.yaml under `messaging.platforms`
+
+mattermost:
+  enabled: true
+  home_channel: "town-square"  # Default channel for undirected messages
+  api_url: "http://localhost:8065/api/v4"
+  bot_token: "${MATTERMOST_BOT_TOKEN}"  # From ~/.hermes/.env
+  message_mode: "post"  # Use Mattermost posts (not webhooks)
+  # Optional: WebSocket reconnect settings
+  websocket:
+    reconnect_attempts: 5
+    reconnect_delay: 3  # seconds (exponential backoff)

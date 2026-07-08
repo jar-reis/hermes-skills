@@ -1,0 +1,205 @@
+schema_version: caliber-fleet-model-routing-v0.1
+last_verified_at: "2026-07-07"
+status: active
+notes:
+  - "Concrete fleet model instantiation of the caliber demand-surface routing skill."
+  - "Built on top of model-capability-matrix.yaml — that file defines capability classes; this file maps them to actual deployable fleet models."
+  - "Routing rule: pick the cheapest cost-tier model that clears ALL required surfaces at the required demand levels and passes pool gates."
+
+# ---------------------------------------------------------------------------
+# Fleet models — the actual deployable constructors available on Aegis
+# ---------------------------------------------------------------------------
+models:
+  - model_id: glm-5.2
+    provider: Ollama Cloud
+    family: workhorse_api
+    license: proprietary
+    modalities: [text]
+    context_window: 128000
+    cost_tier: 2          # 0=free/local, 1=cheap-local, 2=low-cloud, 3=mid-cloud, 4=frontier-cloud, 5=orchestrated
+    deployment_paths:
+      hermes_delegate: { command: null, notes: "default model — direct via Hermes session" }
+      direct_api: { endpoint: "https://www.ollama.com", notes: "Ollama Cloud hosted endpoint" }
+    capability:
+      text_transform: { level: 2, confidence: medium }
+      instruction_following: { level: 2, confidence: medium }
+      general_reasoning: { level: 2, confidence: medium }
+      code_generation: { level: 2, confidence: medium }
+      software_engineering: { level: 2, confidence: low }
+      structured_output: { level: 2, confidence: medium }
+      long_context_retrieval: { level: 2, confidence: low }
+      long_context_synthesis: { level: 2, confidence: low }
+      tool_calling: { level: 2, confidence: medium }
+      data_analysis: { level: 2, confidence: medium }
+    best_for: "General-purpose workhorse. Default Hermes session model. Cheapest cloud option that handles routine professional work."
+
+  - model_id: codex-5.3
+    provider: OpenAI
+    family: coding_specialist
+    license: proprietary
+    modalities: [text]
+    context_window: 200000
+    cost_tier: 3
+    deployment_paths:
+      hermes_delegate: { command: "codex", notes: "via codex skill — hermes delegates coding tasks" }
+      claude_code_cli: { command: null, notes: "not applicable — codex uses its own CLI" }
+      direct_api: { endpoint: "https://api.openai.com/v1", notes: "OpenAI API" }
+    capability:
+      code_generation: { level: 4, confidence: high }
+      software_engineering: { level: 4, confidence: high }
+      agentic_coding: { level: 4, confidence: medium }
+      tool_calling: { level: 3, confidence: medium }
+      structured_output: { level: 3, confidence: medium }
+      general_reasoning: { level: 3, confidence: medium }
+      instruction_following: { level: 3, confidence: medium }
+      long_context_synthesis: { level: 3, confidence: medium }
+    best_for: "Repo-scale coding, multi-file edits, PR creation, agentic coding loops. Use when coding demand >= 3."
+
+  - model_id: claude-fable-5
+    provider: Anthropic (via OpenRouter)
+    family: frontier_reasoning
+    license: proprietary
+    modalities: [text, vision]
+    context_window: 200000
+    cost_tier: 4
+    deployment_paths:
+      hermes_delegate: { command: null, notes: "via OpenRouter provider config in Hermes" }
+      claude_code_cli: { command: "claude", notes: "via claude-code skill — hermes delegates to Claude Code CLI" }
+      direct_api: { endpoint: "https://openrouter.ai/api/v1", notes: "OpenRouter routing to Anthropic" }
+    capability:
+      text_transform: { level: 4, confidence: high }
+      instruction_following: { level: 4, confidence: high }
+      general_reasoning: { level: 4, confidence: high }
+      math_formal: { level: 4, confidence: medium }
+      software_engineering: { level: 4, confidence: high }
+      agentic_coding: { level: 4, confidence: high }
+      tool_calling: { level: 4, confidence: high }
+      long_context_synthesis: { level: 4, confidence: medium }
+      structured_output: { level: 4, confidence: high }
+      vision_static: { level: 3, confidence: medium }
+      strategy_architecture: { level: 4, confidence: medium }
+      creative_writing_worldbuilding: { level: 4, confidence: medium }
+    best_for: "Frontier reasoning, high-stakes planning, novel architecture, complex agentic coding with tool use. Use when reasoning or agentic demand >= 4."
+
+  - model_id: gemini-3.1-pro
+    provider: Google (via Antigravity)
+    family: frontier_reasoning
+    license: proprietary
+    modalities: [text, vision]
+    context_window: 1000000
+    cost_tier: 3
+    deployment_paths:
+      hermes_delegate: { command: null, notes: "via antigravity skill — hermes delegates to agy CLI" }
+      antigravity_cli: { command: "agy", notes: "Antigravity CLI — Google's agentic coding tool" }
+      direct_api: { endpoint: "https://generativelanguage.googleapis.com", notes: "Google AI API (not directly wired in Hermes)" }
+    capability:
+      text_transform: { level: 3, confidence: medium }
+      instruction_following: { level: 3, confidence: medium }
+      general_reasoning: { level: 4, confidence: medium }
+      code_generation: { level: 3, confidence: medium }
+      software_engineering: { level: 3, confidence: medium }
+      long_context_retrieval: { level: 5, confidence: high }
+      long_context_synthesis: { level: 5, confidence: high }
+      vision_static: { level: 4, confidence: high }
+      video_understanding: { level: 4, confidence: medium }
+      structured_output: { level: 3, confidence: high }
+      tool_calling: { level: 3, confidence: medium }
+    best_for: "Ultra-long context (1M tokens), multimodal analysis, video understanding. Use when long_context demand >= 4 or media/vision demand >= 3."
+
+  - model_id: gemma4:31b
+    provider: Local Ollama
+    family: open_weight_frontier
+    license: open
+    modalities: [text]
+    context_window: 8192
+    cost_tier: 1
+    deployment_paths:
+      hermes_delegate: { command: null, notes: "local Ollama — provider config ollama" }
+      direct_api: { endpoint: "http://localhost:11434", notes: "local Ollama server" }
+    capability:
+      text_transform: { level: 2, confidence: medium }
+      instruction_following: { level: 2, confidence: low }
+      general_reasoning: { level: 2, confidence: low }
+      code_generation: { level: 2, confidence: medium }
+      structured_output: { level: 2, confidence: low }
+      local_private: { level: 5, confidence: high }
+    best_for: "Local/private work, offline tasks, sensitive data that must not leave the host. Best local option for demand <= 2."
+
+  - model_id: qwen2.5:7b
+    provider: Local Ollama
+    family: small_local
+    license: open
+    modalities: [text]
+    context_window: 32768
+    cost_tier: 0
+    deployment_paths:
+      hermes_delegate: { command: null, notes: "local Ollama — provider config ollama" }
+      direct_api: { endpoint: "http://localhost:11434", notes: "local Ollama server" }
+    capability:
+      text_transform: { level: 1, confidence: medium }
+      instruction_following: { level: 1, confidence: low }
+      general_reasoning: { level: 1, confidence: low }
+      code_generation: { level: 1, confidence: low }
+      structured_output: { level: 1, confidence: low }
+      local_private: { level: 5, confidence: high }
+    best_for: "Tiny local tasks — classify, extract, rewrite, routing. Free. Use when demand <= 1 and data must stay local."
+
+# ---------------------------------------------------------------------------
+# Surface → demand-level → recommended model routing table
+# ---------------------------------------------------------------------------
+# For each surface, lists the cheapest model that clears each demand level.
+# Routing: find the max demand across all surfaces in the task vector,
+# then use the surface-specific table to pick the cheapest model that
+# clears ALL surfaces at their required levels.
+# ---------------------------------------------------------------------------
+routing_table:
+  reasoning:
+    "0-1": qwen2.5:7b
+    "2": glm-5.2
+    "3": codex-5.3
+    "4-6": claude-fable-5
+  coding:
+    "0-1": qwen2.5:7b
+    "2": gemma4:31b
+    "3": codex-5.3
+    "4-6": claude-fable-5
+  long_context:
+    "0-2": gemma4:31b
+    "3": glm-5.2
+    "4": gemini-3.1-pro
+    "5-6": gemini-3.1-pro
+  tool_use:
+    "0-2": glm-5.2
+    "3": codex-5.3
+    "4-6": claude-fable-5
+  media:
+    "0-2": claude-fable-5
+    "3": gemini-3.1-pro
+    "4-6": gemini-3.1-pro
+  structured_output:
+    "0-1": qwen2.5:7b
+    "2": glm-5.2
+    "3": codex-5.3
+    "4-6": claude-fable-5
+
+# ---------------------------------------------------------------------------
+# Pool gate overrides — when these gates fire, restrict the candidate pool
+# ---------------------------------------------------------------------------
+pool_gates:
+  regulated_private_data:
+    allowed_models: [qwen2.5:7b, gemma4:31b]
+    reason: "Sensitive/regulated data must stay on local Ollama — no cloud APIs."
+  local_only:
+    allowed_models: [qwen2.5:7b, gemma4:31b]
+    reason: "Task requires local/private deployment only."
+  secrets_credentials:
+    allowed_models: [qwen2.5:7b, gemma4:31b]
+    reason: "Do not send raw secrets to cloud APIs. Use local models or secure references."
+  long_context_required:
+    threshold_tokens: 200000
+    allowed_models: [gemini-3.1-pro]
+    reason: "Context exceeds 200K tokens — only gemini-3.1-pro (1M window) clears."
+  production_write:
+    requires_human_gate: true
+    requires_defender: true
+    reason: "Production writes require defender verification + human approval."
