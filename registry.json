@@ -1,6 +1,6 @@
 {
   "generated": "2026-07-08",
-  "host": "Aegis (Mac Mini M4 Pro)",
+  "host": "Aegis.local",
   "source_dirs": {
     "worker": "/Users/hermes/.hermes/profiles/worker/skills",
     "default": "/Users/hermes/.hermes/skills",
@@ -8,19 +8,19 @@
     "codex": "/Users/hermes/.codex/skills",
     "agents": "/Users/hermes/.agents/skills"
   },
-  "total_skills": 490,
+  "total_skills": 491,
   "stats": {
     "by_runtime": {
-      "hermes": 428,
-      "platform:macos": 209,
-      "platform:linux": 198,
+      "hermes": 429,
+      "platform:macos": 210,
+      "platform:linux": 199,
       "platform:windows": 158,
       "claude": 70,
       "codex": 16,
       "agents": 13
     },
     "by_lane": {
-      "Shape": 236,
+      "Shape": 237,
       "Sense": 95,
       "Spec": 95,
       "Execute": 55,
@@ -32,8 +32,8 @@
       "mlops": 37,
       "gstack": 34,
       "note-taking": 32,
+      "productivity": 28,
       "autonomous-ai-agents": 27,
-      "productivity": 27,
       "creative": 27,
       "research": 18,
       "apple": 9,
@@ -46,7 +46,7 @@
     "by_author": {
       "Hermes Agent": 116,
       "Orchestra Research": 36,
-      "Hermes": 23,
+      "Hermes": 24,
       "Hermes Agent (adapted from obra/superpowers)": 12,
       "community": 10,
       "Anthropic (adapted by Nous Research)": 7,
@@ -10275,6 +10275,27 @@
         "workflow",
         "parallel"
       ]
+    },
+    {
+      "id": "sudo-password",
+      "name": "sudo-password",
+      "description": "Use sudo in terminal without interactive prompts via .env.",
+      "author": "Hermes",
+      "version": "0.1.0",
+      "category": "productivity",
+      "runtimes": [
+        "hermes",
+        "platform:linux",
+        "platform:macos"
+      ],
+      "requires": [
+        "terminal"
+      ],
+      "lane": "Shape",
+      "available_in": [
+        "worker"
+      ],
+      "tags": []
     },
     {
       "id": "supacode-cli",
