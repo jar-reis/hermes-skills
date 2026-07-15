@@ -4,25 +4,25 @@
   "source_dirs": {
     "repo": "."
   },
-  "total_skills": 30,
+  "total_skills": 31,
   "stats": {
     "by_runtime": {
-      "hermes": 30,
+      "hermes": 31,
       "platform:macos": 3,
       "platform:linux": 2,
       "platform:windows": 1
     },
     "by_lane": {
-      "Shape": 22,
+      "Shape": 23,
       "Execute": 3,
       "Sense": 2,
       "Spec": 2,
       "Transfer": 1
     },
     "by_category": {
+      "software-development": 7,
       "note-taking": 7,
       "autonomous-ai-agents": 6,
-      "software-development": 6,
       "productivity": 4,
       "devops": 4,
       "enrich-memory": 1,
@@ -513,6 +513,25 @@
         "reconciliation",
         "brain"
       ]
+    },
+    {
+      "id": "skill-library-management",
+      "name": "skill-library-management",
+      "description": "Discover, register, and maintain Hermes skills from non-default paths (plugin directories, external repos, shared vaults). Use when skills are missing from `skills_list()`, when the user mentions plugin skills, when symlinking skills, or when reconciling duplicate/overlapping skills between the default tree and external sources.",
+      "author": "",
+      "version": "",
+      "category": "software-development",
+      "runtimes": [
+        "hermes"
+      ],
+      "requires": [
+        "skills-system"
+      ],
+      "lane": "Shape",
+      "available_in": [
+        "repo"
+      ],
+      "tags": []
     },
     {
       "id": "skills-sh",
