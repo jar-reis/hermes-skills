@@ -20,7 +20,10 @@ jobs:
 
       - name: Regenerate registry.json
         run: |
-          python3 scripts/generate_registry.py --output registry.json
+          # GitHub runners do not have Jack's five fleet skill directories.
+          # Index the repository packages deterministically instead of writing
+          # an empty fleet registry.
+          python3 scripts/generate_registry.py --repo-root . --output registry.json
 
       - name: Copy registry.json to docs/
         run: cp registry.json docs/registry.json

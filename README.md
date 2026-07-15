@@ -4,7 +4,7 @@ Unified, tag-filterable registry of skills across Jack's fleet — Hermes Agent,
 
 ## What's Here
 
-- **`registry.json`** — Machine-generated index of all skills across 5 source directories, with runtime tags, capability requirements, and lane assignments.
+- **`registry.json`** — Machine-generated index. On fleet hosts it can scan all 5 installed source directories; GitHub Actions deterministically indexes the skill packages committed in this repository so it never replaces the registry with an empty runner-home scan.
 - **Skill directories** — Agent-authored skills (`author: Hermes`) synced from `~/.hermes/profiles/worker/skills/` and `~/.hermes/skills/`.
 
 ## Registry Schema
@@ -60,15 +60,15 @@ Filter by lane:
 jq '.skills[] | select(.lane == "Sense") | .name' registry.json
 ```
 
-## Stats (2026-07-08)
+## Stats
 
-- **490 skills** across 5 source directories
-- **428** available in Hermes, **70** in Claude, **16** in Codex, **13** in shared agents
-- **23** agent-authored (`author: Hermes`)
+- **GitHub repository mode (2026-07-15): 30 committed skill packages**
+- **Last full fleet snapshot (2026-07-08): 490 skills** across 5 installed source directories
+- The full fleet snapshot reported **428** available in Hermes, **70** in Claude, **16** in Codex, and **13** in shared agents.
 
 ## Sync
 
-Run `~/agent-configs/sync.sh --sync-skills` to regenerate. The script:
+Run `~/agent-configs/sync.sh --sync-skills` on a fleet host to regenerate the full installed-fleet projection. The script:
 1. Scans all 5 skill directories for `SKILL.md` files
 2. Parses frontmatter for metadata
 3. Infers `runtimes`, `requires`, and `lane`
@@ -76,3 +76,5 @@ Run `~/agent-configs/sync.sh --sync-skills` to regenerate. The script:
 5. Commits and pushes
 
 The registry generator is a Python script at `scripts/generate_registry.py`.
+GitHub Actions uses `--repo-root .` instead; that mode indexes only the
+repository packages with deterministic `host` and source-path metadata.

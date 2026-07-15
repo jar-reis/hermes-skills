@@ -1,19 +1,662 @@
 {
   "generated": "2026-07-15",
-  "host": "runnervm3jd5f",
+  "host": "github-repository",
   "source_dirs": {
-    "worker": "/home/runner/.hermes/profiles/worker/skills",
-    "default": "/home/runner/.hermes/skills",
-    "claude": "/home/runner/.claude/skills",
-    "codex": "/home/runner/.codex/skills",
-    "agents": "/home/runner/.agents/skills"
+    "repo": "."
   },
-  "total_skills": 0,
+  "total_skills": 30,
   "stats": {
-    "by_runtime": {},
-    "by_lane": {},
-    "by_category": {},
-    "by_author": {}
+    "by_runtime": {
+      "hermes": 30,
+      "platform:macos": 3,
+      "platform:linux": 2,
+      "platform:windows": 1
+    },
+    "by_lane": {
+      "Shape": 22,
+      "Execute": 3,
+      "Sense": 2,
+      "Spec": 2,
+      "Transfer": 1
+    },
+    "by_category": {
+      "note-taking": 7,
+      "autonomous-ai-agents": 6,
+      "software-development": 6,
+      "productivity": 4,
+      "devops": 4,
+      "enrich-memory": 1,
+      "apple": 1,
+      "memory-deepening": 1
+    },
+    "by_author": {
+      "Hermes": 29,
+      "Tony Simons (asimons81), Hermes Agent": 1
+    }
   },
-  "skills": []
+  "skills": [
+    {
+      "id": "antigravity-cli",
+      "name": "antigravity-cli",
+      "description": "Operate the Antigravity CLI (agy): plugins, auth, sandbox.",
+      "author": "Tony Simons (asimons81), Hermes Agent",
+      "version": "0.1.0",
+      "category": "autonomous-ai-agents",
+      "runtimes": [
+        "hermes",
+        "platform:linux",
+        "platform:macos",
+        "platform:windows"
+      ],
+      "requires": [],
+      "lane": "Shape",
+      "available_in": [
+        "repo"
+      ],
+      "tags": [
+        "Coding-Agent",
+        "Antigravity",
+        "CLI",
+        "Auth",
+        "Plugins",
+        "Sandbox"
+      ]
+    },
+    {
+      "id": "api-retry-tuning",
+      "name": "api-retry-tuning",
+      "description": "Tune agent.api_max_retries for fast fallback or resilience.",
+      "author": "Hermes",
+      "version": "0.2.0",
+      "category": "autonomous-ai-agents",
+      "runtimes": [
+        "hermes"
+      ],
+      "requires": [],
+      "lane": "Shape",
+      "available_in": [
+        "repo"
+      ],
+      "tags": [
+        "Hermes",
+        "Configuration",
+        "Reliability",
+        "Fallback",
+        "Retry"
+      ]
+    },
+    {
+      "id": "atlas-chunking",
+      "name": "atlas-chunking",
+      "description": "Break a concept into chunks and generate questions to explore. Used by Atlas+Scout primitives.",
+      "author": "Hermes",
+      "version": "1.0.0",
+      "category": "autonomous-ai-agents",
+      "runtimes": [
+        "hermes"
+      ],
+      "requires": [],
+      "lane": "Shape",
+      "available_in": [
+        "repo"
+      ],
+      "tags": [
+        "chunking",
+        "ideation",
+        "exploration"
+      ]
+    },
+    {
+      "id": "caliber",
+      "name": "caliber",
+      "description": "Route prompts by task-demand surface before spending tokens.",
+      "author": "Hermes",
+      "version": "0.1.0",
+      "category": "software-development",
+      "runtimes": [
+        "hermes"
+      ],
+      "requires": [],
+      "lane": "Shape",
+      "available_in": [
+        "repo"
+      ],
+      "tags": [
+        "Routing",
+        "Model-Selection",
+        "Cost-Optimization",
+        "Verification"
+      ]
+    },
+    {
+      "id": "cited-recall",
+      "name": "cited-recall",
+      "description": "Multi-source memory recall that synthesizes a cited answer with explicit abstention when evidence is insufficient. Use when the user needs a direct synthesized answer with citations rather than raw chunk dumps.",
+      "author": "Hermes",
+      "version": "1.1",
+      "category": "note-taking",
+      "runtimes": [
+        "hermes"
+      ],
+      "requires": [],
+      "lane": "Sense",
+      "available_in": [
+        "repo"
+      ],
+      "tags": [
+        "recall",
+        "synthesis",
+        "abstention",
+        "memory",
+        "rrf",
+        "multi-source"
+      ]
+    },
+    {
+      "id": "deduplicate-skills",
+      "name": "deduplicate-skills",
+      "description": "Detect and resolve duplicate skill names across the Hermes skill tree. Scans for name collisions between default skills and plugin skills, compares content, recommends canonical versions, and provides safe cleanup commands. Use when skills_list() shows unexpected duplicates, plugin skills shadow default skills, or context bloat from redundant skill loading is suspected.",
+      "author": "Hermes",
+      "version": "1.0.0",
+      "category": "software-development",
+      "runtimes": [
+        "hermes"
+      ],
+      "requires": [],
+      "lane": "Shape",
+      "available_in": [
+        "repo"
+      ],
+      "tags": [
+        "skills",
+        "maintenance",
+        "deduplication",
+        "context-optimization"
+      ]
+    },
+    {
+      "id": "email-campaign-coordination",
+      "name": "email-campaign-coordination",
+      "description": "Coordinate approval-gated email campaigns.",
+      "author": "Hermes",
+      "version": "0.1.0",
+      "category": "productivity",
+      "runtimes": [
+        "hermes"
+      ],
+      "requires": [],
+      "lane": "Shape",
+      "available_in": [
+        "repo"
+      ],
+      "tags": [
+        "Email",
+        "Campaigns",
+        "MailChimp",
+        "Approval",
+        "Coordination"
+      ]
+    },
+    {
+      "id": "enrich-memory",
+      "name": "enrich-memory",
+      "description": "Capture user requests (\"remember this\") into all four canonical memory systems (Holographic, Honcho, Hindsight, OB1/OBn).",
+      "author": "Hermes",
+      "version": "1.2.0",
+      "category": "enrich-memory",
+      "runtimes": [
+        "hermes"
+      ],
+      "requires": [],
+      "lane": "Shape",
+      "available_in": [
+        "repo"
+      ],
+      "tags": []
+    },
+    {
+      "id": "ephemeral-system-prompt",
+      "name": "ephemeral-system-prompt",
+      "description": "Inject non-persisting system prompts via environment variables.",
+      "author": "Hermes",
+      "version": "0.1.0",
+      "category": "devops",
+      "runtimes": [
+        "hermes"
+      ],
+      "requires": [],
+      "lane": "Shape",
+      "available_in": [
+        "repo"
+      ],
+      "tags": [
+        "Configuration",
+        "Runtime",
+        "SystemPrompt"
+      ]
+    },
+    {
+      "id": "hermes-boot-checklist",
+      "name": "hermes-boot-checklist",
+      "description": "Run a startup checklist via a gateway:startup hook on every boot.",
+      "author": "Hermes",
+      "version": "0.1.0",
+      "category": "software-development",
+      "runtimes": [
+        "hermes"
+      ],
+      "requires": [],
+      "lane": "Spec",
+      "available_in": [
+        "repo"
+      ],
+      "tags": [
+        "Hermes",
+        "Hooks",
+        "Gateway",
+        "Startup",
+        "Automation"
+      ]
+    },
+    {
+      "id": "hermes-display-density",
+      "name": "hermes-display-density",
+      "description": "Tune Hermes output density via display.compact and related settings.",
+      "author": "Hermes",
+      "version": "0.1.0",
+      "category": "productivity",
+      "runtimes": [
+        "hermes"
+      ],
+      "requires": [],
+      "lane": "Shape",
+      "available_in": [
+        "repo"
+      ],
+      "tags": [
+        "Hermes",
+        "Display",
+        "Configuration",
+        "Density"
+      ]
+    },
+    {
+      "id": "iterm2-python-api",
+      "name": "iterm2-python-api",
+      "description": "Control iTerm2 windows, tabs, panes, and sessions via Python API.",
+      "author": "Hermes",
+      "version": "0.1.0",
+      "category": "apple",
+      "runtimes": [
+        "hermes",
+        "platform:macos"
+      ],
+      "requires": [],
+      "lane": "Execute",
+      "available_in": [
+        "repo"
+      ],
+      "tags": []
+    },
+    {
+      "id": "learn-skill-from-request",
+      "name": "learn-skill-from-request",
+      "description": "Parse mixed source+requirement input to author and save a skill.",
+      "author": "Hermes",
+      "version": "0.1.0",
+      "category": "software-development",
+      "runtimes": [
+        "hermes"
+      ],
+      "requires": [
+        "skills-system"
+      ],
+      "lane": "Shape",
+      "available_in": [
+        "repo"
+      ],
+      "tags": [
+        "Skills",
+        "Authoring",
+        "Learning",
+        "Hermes"
+      ]
+    },
+    {
+      "id": "mcp-env-var-interpolation",
+      "name": "mcp-env-var-interpolation",
+      "description": "Configure MCP servers with env-var placeholders from .env.",
+      "author": "Hermes",
+      "version": "0.1.0",
+      "category": "autonomous-ai-agents",
+      "runtimes": [
+        "hermes"
+      ],
+      "requires": [
+        "mcp-server"
+      ],
+      "lane": "Shape",
+      "available_in": [
+        "repo"
+      ],
+      "tags": [
+        "MCP",
+        "Configuration",
+        "Env-Vars",
+        "Hermes"
+      ]
+    },
+    {
+      "id": "memory-deepening",
+      "name": "memory-deepening",
+      "description": "Recurring workflows to deepen and enrich Hermes' memory systems (L1, L2, L3, OBn).",
+      "author": "Hermes",
+      "version": "1.0.0",
+      "category": "memory-deepening",
+      "runtimes": [
+        "hermes"
+      ],
+      "requires": [],
+      "lane": "Shape",
+      "available_in": [
+        "repo"
+      ],
+      "tags": []
+    },
+    {
+      "id": "memory-sop",
+      "name": "memory-sop",
+      "description": ">",
+      "author": "Hermes",
+      "version": "1.5.0",
+      "category": "note-taking",
+      "runtimes": [
+        "hermes"
+      ],
+      "requires": [],
+      "lane": "Shape",
+      "available_in": [
+        "repo"
+      ],
+      "tags": []
+    },
+    {
+      "id": "memory-sop-audit",
+      "name": "memory-sop-audit",
+      "description": ">",
+      "author": "Hermes",
+      "version": "1.1.0",
+      "category": "note-taking",
+      "runtimes": [
+        "hermes"
+      ],
+      "requires": [],
+      "lane": "Spec",
+      "available_in": [
+        "repo"
+      ],
+      "tags": []
+    },
+    {
+      "id": "memory-sop-drain",
+      "name": "memory-sop-drain",
+      "description": ">",
+      "author": "Hermes",
+      "version": "1.1.0",
+      "category": "note-taking",
+      "runtimes": [
+        "hermes"
+      ],
+      "requires": [],
+      "lane": "Shape",
+      "available_in": [
+        "repo"
+      ],
+      "tags": []
+    },
+    {
+      "id": "memory-sop-feedback-loop",
+      "name": "memory-sop-feedback-loop",
+      "description": ">",
+      "author": "Hermes",
+      "version": "1.1.0",
+      "category": "note-taking",
+      "runtimes": [
+        "hermes"
+      ],
+      "requires": [],
+      "lane": "Shape",
+      "available_in": [
+        "repo"
+      ],
+      "tags": []
+    },
+    {
+      "id": "messaging-platform-integration",
+      "name": "messaging-platform-integration",
+      "description": "Integrate messaging platforms (Mattermost, Discord, Telegram, Slack, Matrix, SMS, email) with Hermes for bidirectional message delivery, media attachments, thread support, and fleet coordination.",
+      "author": "Hermes",
+      "version": "",
+      "category": "devops",
+      "runtimes": [
+        "hermes"
+      ],
+      "requires": [],
+      "lane": "Sense",
+      "available_in": [
+        "repo"
+      ],
+      "tags": []
+    },
+    {
+      "id": "open-engine",
+      "name": "open-engine",
+      "description": "Operate Linear as a shared agent task queue with receipts.",
+      "author": "Hermes",
+      "version": "0.1.0",
+      "category": "productivity",
+      "runtimes": [
+        "hermes"
+      ],
+      "requires": [],
+      "lane": "Shape",
+      "available_in": [
+        "repo"
+      ],
+      "tags": [
+        "Linear",
+        "Agent-Queue",
+        "Receipts",
+        "Workflow",
+        "Coordination"
+      ]
+    },
+    {
+      "id": "scout-prioritization",
+      "name": "scout-prioritization",
+      "description": "Decide whether a concept is worth working on. Used by Atlas+Scout primitives.",
+      "author": "Hermes",
+      "version": "1.0.0",
+      "category": "autonomous-ai-agents",
+      "runtimes": [
+        "hermes"
+      ],
+      "requires": [],
+      "lane": "Shape",
+      "available_in": [
+        "repo"
+      ],
+      "tags": [
+        "prioritization",
+        "decision-making",
+        "ideation"
+      ]
+    },
+    {
+      "id": "session-close-ritual",
+      "name": "session-close-ritual",
+      "description": "Run at session end to reconcile tasks, update skills, and write to brain. Enforces closure discipline across the fleet.",
+      "author": "Hermes",
+      "version": "1.0.0",
+      "category": "note-taking",
+      "runtimes": [
+        "hermes"
+      ],
+      "requires": [],
+      "lane": "Execute",
+      "available_in": [
+        "repo"
+      ],
+      "tags": [
+        "session",
+        "closure",
+        "reconciliation",
+        "brain"
+      ]
+    },
+    {
+      "id": "skills-sh",
+      "name": "skills-sh",
+      "description": "Discover, install, and manage agent skills from skills.sh.",
+      "author": "Hermes",
+      "version": "0.1.0",
+      "category": "software-development",
+      "runtimes": [
+        "hermes"
+      ],
+      "requires": [
+        "skills-system"
+      ],
+      "lane": "Execute",
+      "available_in": [
+        "repo"
+      ],
+      "tags": []
+    },
+    {
+      "id": "solar-theme-system",
+      "name": "solar-theme-system",
+      "description": "Solar-aware 6-mode time-of-day theming with NOAA sunrise/sunset calculation",
+      "author": "Hermes",
+      "version": "1.0.0",
+      "category": "software-development",
+      "runtimes": [
+        "hermes"
+      ],
+      "requires": [],
+      "lane": "Shape",
+      "available_in": [
+        "repo"
+      ],
+      "tags": [
+        "theme",
+        "solar",
+        "noaa",
+        "design-system",
+        "time-of-day",
+        "css"
+      ]
+    },
+    {
+      "id": "start-hindsight-honcho-holographic",
+      "name": "start-hindsight-honcho-holographic",
+      "description": "Start Hindsight, Honcho (Cortex), and Holographic (OB1 + OBn) simultaneously. Includes verification and troubleshooting.",
+      "author": "Hermes",
+      "version": "",
+      "category": "devops",
+      "runtimes": [
+        "hermes"
+      ],
+      "requires": [],
+      "lane": "Shape",
+      "available_in": [
+        "repo"
+      ],
+      "tags": []
+    },
+    {
+      "id": "stream-retry-tuning",
+      "name": "stream-retry-tuning",
+      "description": "Tune HERMES_STREAM_RETRIES for mid-stream reconnect resilience.",
+      "author": "Hermes",
+      "version": "0.1.0",
+      "category": "autonomous-ai-agents",
+      "runtimes": [
+        "hermes"
+      ],
+      "requires": [],
+      "lane": "Shape",
+      "available_in": [
+        "repo"
+      ],
+      "tags": [
+        "Hermes",
+        "Streaming",
+        "Retry",
+        "Network",
+        "Reliability"
+      ]
+    },
+    {
+      "id": "sudo-password",
+      "name": "sudo-password",
+      "description": "Use sudo in terminal without interactive prompts via .env.",
+      "author": "Hermes",
+      "version": "0.1.0",
+      "category": "productivity",
+      "runtimes": [
+        "hermes",
+        "platform:linux",
+        "platform:macos"
+      ],
+      "requires": [
+        "terminal"
+      ],
+      "lane": "Shape",
+      "available_in": [
+        "repo"
+      ],
+      "tags": []
+    },
+    {
+      "id": "telegram-parallel-sessions",
+      "name": "telegram-parallel-sessions",
+      "description": "Manage parallel Hermes sessions in Telegram topics.",
+      "author": "Hermes",
+      "version": "0.1.0",
+      "category": "devops",
+      "runtimes": [
+        "hermes"
+      ],
+      "requires": [],
+      "lane": "Shape",
+      "available_in": [
+        "repo"
+      ],
+      "tags": [
+        "Telegram",
+        "Sessions",
+        "Topics",
+        "Parallel",
+        "Hermes"
+      ]
+    },
+    {
+      "id": "turn-sync",
+      "name": "turn-sync",
+      "description": ">",
+      "author": "Hermes",
+      "version": "1.1.0",
+      "category": "note-taking",
+      "runtimes": [
+        "hermes"
+      ],
+      "requires": [],
+      "lane": "Transfer",
+      "available_in": [
+        "repo"
+      ],
+      "tags": []
+    }
+  ]
 }

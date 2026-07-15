@@ -120,7 +120,7 @@ def infer_lane(desc, name):
     return "Shape"
 
 
-def build_registry(skill_dirs=None):
+def build_registry(skill_dirs=None, host_label=None):
     if skill_dirs is None:
         skill_dirs = DEFAULT_DIRS
 
@@ -128,7 +128,7 @@ def build_registry(skill_dirs=None):
     for dir_label, dir_path in skill_dirs:
         if not os.path.isdir(dir_path):
             continue
-        for skill_md in glob.glob(os.path.join(dir_path, "**", "SKILL.md"), recursive=True):
+        for skill_md in sorted(glob.glob(os.path.join(dir_path, "**", "SKILL.md"), recursive=True)):
             fm = parse_frontmatter(skill_md)
             name = fm.get("name", os.path.basename(os.path.dirname(skill_md)))
             if name not in all_skills:
@@ -145,14 +145,15 @@ def build_registry(skill_dirs=None):
                     "available_in": [],
                     "frontmatter": fm,
                 }
-            all_skills[name]["available_in"].append(dir_label)
+            if dir_label not in all_skills[name]["available_in"]:
+                all_skills[name]["available_in"].append(dir_label)
 
     skills = []
     for name, info in sorted(all_skills.items()):
         fm = info["frontmatter"]
         dirs = info["available_in"]
         runtimes = set()
-        if "worker" in dirs or "default" in dirs:
+        if "worker" in dirs or "default" in dirs or "repo" in dirs:
             runtimes.add("hermes")
         if "claude" in dirs:
             runtimes.add("claude")
@@ -202,7 +203,7 @@ def build_registry(skill_dirs=None):
 
     return {
         "generated": str(date.today()),
-        "host": os.uname().nodename if hasattr(os, "uname") else "unknown",
+        "host": host_label or (os.uname().nodename if hasattr(os, "uname") else "unknown"),
         "source_dirs": {label: path for label, path in skill_dirs},
         "total_skills": len(skills),
         "stats": {
@@ -218,9 +219,17 @@ def build_registry(skill_dirs=None):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate unified skills registry")
     parser.add_argument("--output", "-o", default=None, help="Output path (default: stdout)")
+    parser.add_argument(
+        "--repo-root",
+        default=None,
+        help="Deterministically index SKILL.md packages in this repository instead of scanning fleet home directories",
+    )
     args = parser.parse_args()
 
-    registry = build_registry()
+    if args.repo_root is not None:
+        registry = build_registry([("repo", args.repo_root)], host_label="github-repository")
+    else:
+        registry = build_registry()
 
     if args.output:
         with open(args.output, "w") as f:
