@@ -1,21 +1,21 @@
 {
-  "generated": "2026-07-15",
+  "generated": "2026-07-16",
   "host": "github-repository",
   "source_dirs": {
     "repo": "."
   },
-  "total_skills": 31,
+  "total_skills": 32,
   "stats": {
     "by_runtime": {
-      "hermes": 31,
+      "hermes": 32,
       "platform:macos": 3,
       "platform:linux": 2,
       "platform:windows": 1
     },
     "by_lane": {
       "Shape": 23,
+      "Sense": 3,
       "Execute": 3,
-      "Sense": 2,
       "Spec": 2,
       "Transfer": 1
     },
@@ -23,15 +23,16 @@
       "software-development": 7,
       "note-taking": 7,
       "autonomous-ai-agents": 6,
+      "devops": 5,
       "productivity": 4,
-      "devops": 4,
       "enrich-memory": 1,
       "apple": 1,
       "memory-deepening": 1
     },
     "by_author": {
       "Hermes": 29,
-      "Tony Simons (asimons81), Hermes Agent": 1
+      "Tony Simons (asimons81), Hermes Agent": 1,
+      "Hermes Agent": 1
     }
   },
   "skills": [
@@ -150,6 +151,33 @@
         "memory",
         "rrf",
         "multi-source"
+      ]
+    },
+    {
+      "id": "cron-automation",
+      "name": "cron-automation",
+      "description": "Use when scheduling recurring polls, read-only monitors, or background jobs that must survive shell session boundaries.",
+      "author": "Hermes Agent",
+      "version": "1.1.0",
+      "category": "devops",
+      "runtimes": [
+        "hermes"
+      ],
+      "requires": [
+        "terminal"
+      ],
+      "lane": "Sense",
+      "available_in": [
+        "repo"
+      ],
+      "tags": [
+        "cron",
+        "recurring-jobs",
+        "polling",
+        "monitoring",
+        "flock",
+        "logging",
+        "automation"
       ]
     },
     {
