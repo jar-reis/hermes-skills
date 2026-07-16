@@ -4,10 +4,10 @@
   "source_dirs": {
     "repo": "."
   },
-  "total_skills": 32,
+  "total_skills": 33,
   "stats": {
     "by_runtime": {
-      "hermes": 32,
+      "hermes": 33,
       "platform:macos": 3,
       "platform:linux": 2,
       "platform:windows": 1
@@ -15,8 +15,8 @@
     "by_lane": {
       "Shape": 23,
       "Sense": 3,
+      "Spec": 3,
       "Execute": 3,
-      "Spec": 2,
       "Transfer": 1
     },
     "by_category": {
@@ -25,6 +25,7 @@
       "autonomous-ai-agents": 6,
       "devops": 5,
       "productivity": 4,
+      "cloudflare-one": 1,
       "enrich-memory": 1,
       "apple": 1,
       "memory-deepening": 1
@@ -152,6 +153,23 @@
         "rrf",
         "multi-source"
       ]
+    },
+    {
+      "id": "cloudflare-one",
+      "name": "cloudflare-one",
+      "description": "Guides Cloudflare One Zero Trust and SASE work across Access, Gateway, WARP, Tunnel, Cloudflare WAN, DLP, CASB, device posture, and identity. Use when designing, configuring, troubleshooting, or reviewing Cloudflare One deployments. Retrieval-first: use current Cloudflare docs/API schemas instead of embedded product docs.",
+      "author": "",
+      "version": "",
+      "category": "cloudflare-one",
+      "runtimes": [
+        "hermes"
+      ],
+      "requires": [],
+      "lane": "Spec",
+      "available_in": [
+        "repo"
+      ],
+      "tags": []
     },
     {
       "id": "cron-automation",
