@@ -1,19 +1,19 @@
 {
-  "generated": "2026-07-16",
+  "generated": "2026-08-03",
   "host": "github-repository",
   "source_dirs": {
     "repo": "."
   },
-  "total_skills": 33,
+  "total_skills": 34,
   "stats": {
     "by_runtime": {
-      "hermes": 33,
-      "platform:macos": 3,
-      "platform:linux": 2,
+      "hermes": 34,
+      "platform:macos": 4,
+      "platform:linux": 3,
       "platform:windows": 1
     },
     "by_lane": {
-      "Shape": 23,
+      "Shape": 24,
       "Sense": 3,
       "Spec": 3,
       "Execute": 3,
@@ -28,12 +28,13 @@
       "cloudflare-one": 1,
       "enrich-memory": 1,
       "apple": 1,
-      "memory-deepening": 1
+      "memory-deepening": 1,
+      "automation": 1
     },
     "by_author": {
       "Hermes": 29,
-      "Tony Simons (asimons81), Hermes Agent": 1,
-      "Hermes Agent": 1
+      "Hermes Agent": 2,
+      "Tony Simons (asimons81), Hermes Agent": 1
     }
   },
   "skills": [
@@ -515,6 +516,31 @@
         "Receipts",
         "Workflow",
         "Coordination"
+      ]
+    },
+    {
+      "id": "open-fleet-alias-boundary",
+      "name": "open-fleet-alias-boundary",
+      "description": "Scope Open Fleet identity per persistent conversation.",
+      "author": "Hermes Agent",
+      "version": "1.0.0",
+      "category": "automation",
+      "runtimes": [
+        "hermes",
+        "platform:linux",
+        "platform:macos"
+      ],
+      "requires": [],
+      "lane": "Shape",
+      "available_in": [
+        "repo"
+      ],
+      "tags": [
+        "open-fleet",
+        "telegram",
+        "paperclip",
+        "herdr",
+        "profiles"
       ]
     },
     {
