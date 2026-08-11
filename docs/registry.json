@@ -1,21 +1,21 @@
 {
-  "generated": "2026-08-04",
+  "generated": "2026-08-11",
   "host": "github-repository",
   "source_dirs": {
     "repo": "."
   },
-  "total_skills": 34,
+  "total_skills": 35,
   "stats": {
     "by_runtime": {
-      "hermes": 34,
-      "platform:macos": 4,
-      "platform:linux": 3,
+      "hermes": 35,
+      "platform:macos": 5,
+      "platform:linux": 4,
       "platform:windows": 1
     },
     "by_lane": {
       "Shape": 24,
+      "Spec": 4,
       "Sense": 3,
-      "Spec": 3,
       "Execute": 3,
       "Transfer": 1
     },
@@ -23,7 +23,7 @@
       "software-development": 7,
       "note-taking": 7,
       "autonomous-ai-agents": 6,
-      "devops": 5,
+      "devops": 6,
       "productivity": 4,
       "cloudflare-one": 1,
       "enrich-memory": 1,
@@ -33,7 +33,7 @@
     },
     "by_author": {
       "Hermes": 29,
-      "Hermes Agent": 2,
+      "Hermes Agent": 3,
       "Tony Simons (asimons81), Hermes Agent": 1
     }
   },
@@ -541,6 +541,32 @@
         "paperclip",
         "herdr",
         "profiles"
+      ]
+    },
+    {
+      "id": "profile-instruction-centralization",
+      "name": "profile-instruction-centralization",
+      "description": "Use when auditing/centralizing Hermes profile instructions.",
+      "author": "Hermes Agent",
+      "version": "1.0.0",
+      "category": "devops",
+      "runtimes": [
+        "hermes",
+        "platform:linux",
+        "platform:macos"
+      ],
+      "requires": [],
+      "lane": "Spec",
+      "available_in": [
+        "repo"
+      ],
+      "tags": [
+        "profiles",
+        "audit",
+        "consolidation",
+        "doctrine",
+        "fleet",
+        "hfs"
       ]
     },
     {
