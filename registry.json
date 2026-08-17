@@ -1,5 +1,5 @@
 {
-  "generated": "2026-08-11",
+  "generated": "2026-08-17",
   "host": "github-repository",
   "source_dirs": {
     "repo": "."
@@ -32,7 +32,7 @@
       "automation": 1
     },
     "by_author": {
-      "Hermes": 29,
+      "Hermes": 28,
       "Hermes Agent": 3,
       "Tony Simons (asimons81), Hermes Agent": 1
     }
@@ -112,9 +112,9 @@
     {
       "id": "caliber",
       "name": "caliber",
-      "description": "Route prompts by task-demand surface before spending tokens.",
-      "author": "Hermes",
-      "version": "0.1.0",
+      "description": "Route prompts by task-demand surface before spending tokens. Use when deciding which model, tool lane, verifier, or human gate a task needs; when a task involves local/private models, small/cheap models, coding, agents, long context, media, compliance, or high-stakes verification.",
+      "author": "",
+      "version": "",
       "category": "software-development",
       "runtimes": [
         "hermes"
@@ -124,12 +124,7 @@
       "available_in": [
         "repo"
       ],
-      "tags": [
-        "Routing",
-        "Model-Selection",
-        "Cost-Optimization",
-        "Verification"
-      ]
+      "tags": []
     },
     {
       "id": "cited-recall",
